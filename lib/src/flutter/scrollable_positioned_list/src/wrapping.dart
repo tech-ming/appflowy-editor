@@ -946,7 +946,8 @@ abstract class CustomRenderViewport
   @override
   void applyPaintTransform(RenderObject child, Matrix4 transform) {
     final Offset offset = paintOffsetOf(child as RenderSliver);
-    transform.leftTranslateByDouble(offset.dx, offset.dy, 0.0, 1.0);
+    // 修复 vector_math 兼容性：leftTranslateByDouble 已被移除，使用 leftTranslate 替代
+    transform.leftTranslate(offset.dx, offset.dy, 0.0);
   }
 
   @override

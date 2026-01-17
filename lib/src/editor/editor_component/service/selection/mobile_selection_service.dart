@@ -196,8 +196,8 @@ class _MobileSelectionServiceWidgetState
           return const SizedBox.shrink();
         }
 
-        // on Android, the drag handle should be updated when typing text.
-        if (PlatformExtension.isAndroid &&
+        // on Android/OHOS, the drag handle should be updated when typing text.
+        if ((PlatformExtension.isAndroid || PlatformExtension.isOhos) &&
             editorState.selectionUpdateReason !=
                 SelectionUpdateReason.uiEvent) {
           isCollapsedHandleVisible = false;
@@ -338,7 +338,7 @@ class _MobileSelectionServiceWidgetState
 
   // The collapsed handle will be dismissed when no user interaction is detected.
   void _clearCollapsedHandleOnAndroid() {
-    if (!PlatformExtension.isAndroid) {
+    if (!PlatformExtension.isAndroid && !PlatformExtension.isOhos) {
       return;
     }
     collapsedHandleTimer?.cancel();

@@ -269,12 +269,13 @@ class KeyboardServiceWidgetState extends State<KeyboardServiceWidget>
         .where((element) => element.delta != null);
 
     // if the selection is inline and the selection is updated by ui event,
-    // we should clear the composing range on Android.
+    // we should clear the composing range on Android/OHOS.
     final shouldClearComposingRange =
         editorState.selectionType == SelectionType.inline &&
             editorState.selectionUpdateReason == SelectionUpdateReason.uiEvent;
 
-    if (PlatformExtension.isAndroid && shouldClearComposingRange) {
+    if ((PlatformExtension.isAndroid || PlatformExtension.isOhos) &&
+        shouldClearComposingRange) {
       textInputService.clearComposingTextRange();
     }
 

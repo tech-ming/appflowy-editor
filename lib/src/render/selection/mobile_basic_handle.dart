@@ -114,7 +114,8 @@ class DragHandle extends _IDragHandle {
         debugPaintSizeEnabled: debugPaintSizeEnabled,
         onDragging: onDragging,
       );
-    } else if (PlatformExtension.isAndroid) {
+    } else if (PlatformExtension.isAndroid || PlatformExtension.isOhos) {
+      // OHOS 使用 Android 风格的拖拽手柄
       child = _AndroidDragHandle(
         handleHeight: handleHeight,
         handleColor: handleColor,

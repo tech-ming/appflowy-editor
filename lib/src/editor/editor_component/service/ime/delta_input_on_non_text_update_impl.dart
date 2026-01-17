@@ -53,12 +53,13 @@ Future<void> onNonTextUpdate(
         ),
       );
     }
-  } else if (PlatformExtension.isAndroid) {
-    // on some Android keyboards (e.g. Gboard), they use non-text update to update the selection when moving cursor
+  } else if (PlatformExtension.isAndroid || PlatformExtension.isOhos) {
+    // on some Android/OHOS keyboards (e.g. Gboard), they use non-text update to update the selection when moving cursor
     // by space bar.
     // for the another keyboards (e.g. system keyboard), they will trigger the
     // `onFloatingCursor` event instead.
-    AppFlowyEditorLog.input.debug('[Android] onNonTextUpdate: $nonTextUpdate');
+    AppFlowyEditorLog.input
+        .debug('[Android/OHOS] onNonTextUpdate: $nonTextUpdate');
     if (selection != null) {
       final nonTextUpdateStart = nonTextUpdate.selection.start;
       final selectionStart = selection.start.offset;

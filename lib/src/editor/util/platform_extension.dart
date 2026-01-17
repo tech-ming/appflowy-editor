@@ -24,6 +24,18 @@ extension PlatformExtension on Platform {
   /// Returns true if the operating system is Android and not running on Web platform.
   static bool get isAndroid => UniversalPlatform.isAndroid;
 
+  /// 返回 true 如果操作系统是OHOS
+  static bool get isOhos {
+    if (kIsWeb) {
+      return false;
+    }
+    try {
+      return Platform.operatingSystem.toLowerCase() == 'ohos';
+    } catch (e) {
+      return false;
+    }
+  }
+
   /// Returns true if the operating system is macOS and running on Web platform.
   static bool get isWebOnMacOS {
     if (!kIsWeb) {

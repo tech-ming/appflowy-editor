@@ -42,8 +42,9 @@ class KeyboardHeightObserver {
   }
 
   void notify(double height) {
-    // the keyboard height will notify twice with the same value on Android
-    if (PlatformExtension.isAndroid && height == currentKeyboardHeight) {
+    // the keyboard height will notify twice with the same value on Android/OHOS
+    if ((PlatformExtension.isAndroid || PlatformExtension.isOhos) &&
+        height == currentKeyboardHeight) {
       return;
     }
 

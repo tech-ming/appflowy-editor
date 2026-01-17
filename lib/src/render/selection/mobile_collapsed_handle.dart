@@ -39,7 +39,7 @@ class _MobileCollapsedHandleState extends State<MobileCollapsedHandle> {
         handleWidth: widget.handleWidth,
         debugPaintSizeEnabled: debugInfo.debugPaintSizeEnabled,
       );
-    } else if (PlatformExtension.isAndroid) {
+    } else if (PlatformExtension.isAndroid || PlatformExtension.isOhos) {
       return _AndroidCollapsedHandle(
         layerLink: widget.layerLink,
         rect: widget.rect,

@@ -38,8 +38,8 @@ class MobileSelectionHandle extends StatelessWidget {
           rect.width + 4 * (handleWidth + threshold),
           rect.height + 2 * handleBallWidth,
         );
-      } else if (PlatformExtension.isAndroid) {
-        // on Android, normally the cursor will be hidden if the selection is not collapsed.
+      } else if (PlatformExtension.isAndroid || PlatformExtension.isOhos) {
+        // on Android/OHOS, normally the cursor will be hidden if the selection is not collapsed.
         // Extend the click area to make it easier to click.
         adjustedRect = Rect.fromLTWH(
           rect.left - 2 * (handleBallWidth),

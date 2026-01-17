@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/editor/toolbar/mobile/utils/keyboard_height_observer.dart';
+import 'package:appflowy_editor/src/editor/util/platform_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -280,10 +281,11 @@ class _MobileToolbarState extends State<_MobileToolbar>
 
     if (canUpdateCachedKeyboardHeight) {
       cachedKeyboardHeight.value = height;
-      if (defaultTargetPlatform == TargetPlatform.android) {
+      if (defaultTargetPlatform == TargetPlatform.android ||
+          PlatformExtension.isOhos) {
         if (cachedKeyboardHeight.value != 0) {
-          cachedKeyboardHeight.value +=
-              MediaQuery.of(context).viewPadding.bottom;
+          cachedKeyboardHeight.value += 
+            MediaQuery.of(context).viewPadding.bottom;
         }
       }
     }
@@ -398,12 +400,13 @@ class _MobileToolbarState extends State<_MobileToolbar>
           valueListenable: showMenuNotifier,
           builder: (_, showingMenu, __) {
             var keyboardHeight = height;
-            if (defaultTargetPlatform == TargetPlatform.android) {
-              if (!showingMenu) {
-                keyboardHeight = max(
-                  keyboardHeight,
-                  MediaQuery.of(context).viewInsets.bottom,
-                );
+            if (defaultTargetPlatform == TargetPlatform.android ||
+              PlatformExtension.isOhos) {
+                if (!showingMenu) {
+                  keyboardHeight = max(
+                    keyboardHeight,
+                    MediaQuery.of(context).viewInsets.bottom,
+                  );
               }
             }
 

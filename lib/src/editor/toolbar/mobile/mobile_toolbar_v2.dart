@@ -281,13 +281,9 @@ class _MobileToolbarState extends State<_MobileToolbar>
 
     if (canUpdateCachedKeyboardHeight) {
       cachedKeyboardHeight.value = height;
-      if (defaultTargetPlatform == TargetPlatform.android ||
-          PlatformExtension.isOhos) {
-        if (cachedKeyboardHeight.value != 0) {
-          cachedKeyboardHeight.value += 
-            MediaQuery.of(context).viewPadding.bottom;
-        }
-      }
+      // 移除强制添加 viewPadding.bottom 的逻辑
+      // 键盘高度应该由系统直接提供，不需要额外添加安全区域
+      // 如果调用方需要安全区域，应该在外层使用 SafeArea
     }
 
     if (height == 0) {
@@ -400,14 +396,13 @@ class _MobileToolbarState extends State<_MobileToolbar>
           valueListenable: showMenuNotifier,
           builder: (_, showingMenu, __) {
             var keyboardHeight = height;
-            if (defaultTargetPlatform == TargetPlatform.android ||
-              PlatformExtension.isOhos) {
-                if (!showingMenu) {
-                  keyboardHeight = max(
-                    keyboardHeight,
-                    MediaQuery.of(context).viewInsets.bottom,
-                  );
-              }
+            // 当不显示菜单时，确保使用实时的键盘高度
+            // viewInsets.bottom 只包含键盘高度，不包含安全区域
+            if (!showingMenu) {
+              keyboardHeight = max(
+                keyboardHeight,
+                MediaQuery.of(context).viewInsets.bottom,
+              );
             }
 
             return SizedBox(

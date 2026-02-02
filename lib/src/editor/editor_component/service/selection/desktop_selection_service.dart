@@ -272,7 +272,12 @@ class _DesktopSelectionServiceWidgetState
     if (HardwareKeyboard.instance.isShiftPressed && _panStartPosition != null) {
       selection = Selection(start: _panStartPosition!, end: position);
     } else {
-      selection = selectable.cursorStyle == CursorStyle.verticalLine
+      // verticalLine 创建折叠选区
+      // cover 和 borderLine 选中整个块
+      final cursorStyle = selectable.cursorStyle;
+      final shouldCollapse = cursorStyle == CursorStyle.verticalLine;
+
+      selection = shouldCollapse
           ? Selection.collapsed(position)
           : Selection(start: selectable.start(), end: selectable.end());
 

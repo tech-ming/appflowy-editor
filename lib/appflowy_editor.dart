@@ -24,6 +24,7 @@ export 'src/l10n/l10n.dart';
 // plugins part, including decoder and encoder.
 export 'src/plugins/plugins.dart';
 export 'src/render/selection/selectable.dart';
+export 'src/render/selection/non_editable_block_selection_mixin.dart';
 export 'src/render/toolbar/toolbar_item.dart';
 export 'src/service/context_menu/context_menu.dart';
 export 'src/service/context_menu/built_in_context_menu_item.dart';

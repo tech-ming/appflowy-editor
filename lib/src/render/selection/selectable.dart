@@ -3,8 +3,13 @@ import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:flutter/material.dart';
 
 enum CursorStyle {
+  /// 竖线光标（文本块和非文本块边缘光标都使用）
   verticalLine,
+
+  /// 边框光标
   borderLine,
+
+  /// 覆盖整个块的半透明背景（非文本块整块选中时使用）
   cover,
 }
 

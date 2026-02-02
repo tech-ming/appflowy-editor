@@ -52,18 +52,52 @@ CommandShortcutEventHandler _backspaceInCollapsedSelection = (editorState) {
 
   final transaction = editorState.transaction;
 
-  // delete the entire node if the delta is empty
+  // 处理非文本块（delta == null 的节点，如图片、分割线等）
   if (node.delta == null) {
-    transaction.deleteNode(node);
-    transaction.afterSelection = Selection.collapsed(
-      Position(
-        path: position.path,
-        offset: 0,
-      ),
-    );
-    editorState.apply(transaction);
+    if (position.offset == 0) {
+      // 光标在非文本块左侧（offset=0）：
+      // 尝试将光标移到上一个节点的末尾，而不是删除当前块
+      Node? tableParent =
+          node.findParent((element) => element.type == TableBlockKeys.type);
+      Node? prevTableParent;
+      final prev = node.previousNodeWhere((element) {
+        prevTableParent = element
+            .findParent((element) => element.type == TableBlockKeys.type);
+        return tableParent != prevTableParent || element.delta != null;
+      });
 
-    return KeyEventResult.handled;
+      if (prev != null && prev.delta != null && tableParent == prevTableParent) {
+        // 移到上一个文本块的末尾
+        transaction.afterSelection = Selection.collapsed(
+          Position(path: prev.path, offset: prev.delta!.length),
+        );
+      } else {
+        // 没有上一个文本块，尝试移到上一个非文本块的右侧
+        final prevAny = node.previousNodeWhere((element) {
+          prevTableParent = element
+              .findParent((element) => element.type == TableBlockKeys.type);
+          return tableParent != prevTableParent || true;
+        });
+        if (prevAny != null && tableParent == prevTableParent) {
+          transaction.afterSelection = Selection.collapsed(
+            Position(path: prevAny.path, offset: 1),
+          );
+        } else {
+          // 没有上一个节点，不做任何操作
+          return KeyEventResult.handled;
+        }
+      }
+      editorState.apply(transaction);
+      return KeyEventResult.handled;
+    } else {
+      // 光标在非文本块右侧（offset=1）：删除整个块
+      transaction.deleteNode(node);
+      transaction.afterSelection = Selection.collapsed(
+        Position(path: position.path, offset: 0),
+      );
+      editorState.apply(transaction);
+      return KeyEventResult.handled;
+    }
   }
 
   // Why do we use prevRunPosition instead of the position start offset?
@@ -100,6 +134,32 @@ CommandShortcutEventHandler _backspaceInCollapsedSelection = (editorState) {
       Node? tableParent =
           node.findParent((element) => element.type == TableBlockKeys.type);
       Node? prevTableParent;
+
+      // 首先检查前一个节点（无论是否有 delta）
+      final prevAny = node.previousNodeWhere((element) {
+        prevTableParent = element
+            .findParent((element) => element.type == TableBlockKeys.type);
+        return tableParent != prevTableParent || true; // 找到任何前一个节点
+      });
+
+      // 如果前一个节点是无文本块（图片、分割线等），将光标移到该块的右侧
+      // 而不是直接删除它，这样用户需要再按一次删除键才能真正删除该块
+      if (prevAny != null &&
+          prevAny.delta == null &&
+          tableParent == prevTableParent) {
+        // 光标移动到前一个块的右侧（offset=1）
+        transaction.afterSelection = Selection.collapsed(
+          Position(path: prevAny.path, offset: 1),
+        );
+        // 如果当前行是空行，则删除它
+        if (node.delta != null && node.delta!.isEmpty) {
+          transaction.deleteNode(node);
+        }
+        editorState.apply(transaction);
+        return KeyEventResult.handled;
+      }
+
+      // 查找前一个有文本的节点用于合并
       final prev = node.previousNodeWhere((element) {
         prevTableParent = element
             .findParent((element) => element.type == TableBlockKeys.type);

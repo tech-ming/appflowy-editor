@@ -302,6 +302,16 @@ class KeyboardServiceWidgetState extends State<KeyboardServiceWidget>
       );
     }
 
+    // 对于非文本块（如图片、视频、分割线等），返回一个空的 TextEditingValue
+    // 这样键盘仍然可以弹出，用户可以使用退格键删除等操作
+    final nodes = editorState.getNodesInSelection(selection);
+    if (nodes.isNotEmpty && nodes.first.delta == null) {
+      return const TextEditingValue(
+        text: '',
+        selection: TextSelection.collapsed(offset: 0),
+      );
+    }
+
     return null;
   }
 

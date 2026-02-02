@@ -642,6 +642,9 @@ class _MobileSelectionServiceWidgetState
     clearSelection();
 
     Selection? selection;
+    final node = getNodeInOffset(offset);
+    final selectable = node?.selectable;
+
     if (disableIOSSelectWordEdgeOnTap) {
       final position = getPositionInOffset(offset);
       if (position != null) {
@@ -649,8 +652,18 @@ class _MobileSelectionServiceWidgetState
       }
     } else {
       // get the word edge closest to offset
-      final node = getNodeInOffset(offset);
-      selection = node?.selectable?.getWordEdgeInOffset(offset);
+      selection = selectable?.getWordEdgeInOffset(offset);
+
+      // 对于非文本块（getWordEdgeInOffset 返回 null），
+      // 使用 getPositionInOffset 创建折叠选区
+      if (selection == null && selectable != null) {
+        final cursorStyle = selectable.cursorStyle;
+        // verticalLine 样式的块支持左右光标定位
+        if (cursorStyle == CursorStyle.verticalLine) {
+          final position = selectable.getPositionInOffset(offset);
+          selection = Selection.collapsed(position);
+        }
+      }
     }
 
     if (selection == null) {

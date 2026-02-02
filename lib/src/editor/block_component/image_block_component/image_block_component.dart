@@ -70,7 +70,7 @@ class ImageBlockComponentBuilder extends BlockComponentBuilder {
     final node = blockComponentContext.node;
 
     return ImageBlockComponentWidget(
-      key: node.key,
+      // 不使用 node.key，让 BlockComponentContainer 自动包装
       node: node,
       showActions: showActions(node),
       configuration: configuration,
@@ -115,16 +115,12 @@ class ImageBlockComponentWidget extends BlockComponentStatefulWidget {
 }
 
 class ImageBlockComponentWidgetState extends State<ImageBlockComponentWidget>
-    with SelectableMixin, BlockComponentConfigurable {
+    with BlockComponentConfigurable {
   @override
   BlockComponentConfiguration get configuration => widget.configuration;
 
   @override
   Node get node => widget.node;
-
-  final imageKey = GlobalKey();
-
-  RenderBox? get _renderBox => context.findRenderObject() as RenderBox?;
 
   late final editorState = Provider.of<EditorState>(context, listen: false);
 
@@ -168,20 +164,7 @@ class ImageBlockComponentWidgetState extends State<ImageBlockComponentWidget>
     );
 
     child = Padding(
-      key: imageKey,
       padding: padding,
-      child: child,
-    );
-
-    child = BlockSelectionContainer(
-      node: node,
-      delegate: this,
-      listenable: editorState.selectionNotifier,
-      remoteSelection: editorState.remoteSelections,
-      blockColor: editorState.editorStyle.selectionColor,
-      supportTypes: const [
-        BlockSelectionType.block,
-      ],
       child: child,
     );
 
@@ -209,15 +192,7 @@ class ImageBlockComponentWidgetState extends State<ImageBlockComponentWidget>
           builder: (context, value, child) {
             return Stack(
               children: [
-                BlockSelectionContainer(
-                  node: node,
-                  delegate: this,
-                  listenable: editorState.selectionNotifier,
-                  remoteSelection: editorState.remoteSelections,
-                  cursorColor: editorState.editorStyle.cursorColor,
-                  selectionColor: editorState.editorStyle.selectionColor,
-                  child: child!,
-                ),
+                child!,
                 if (value) widget.menuBuilder!(widget.node, this),
               ],
             );
@@ -229,80 +204,6 @@ class ImageBlockComponentWidgetState extends State<ImageBlockComponentWidget>
 
     return child;
   }
-
-  @override
-  Position start() => Position(path: widget.node.path, offset: 0);
-
-  @override
-  Position end() => Position(path: widget.node.path, offset: 1);
-
-  @override
-  Position getPositionInOffset(Offset start) => end();
-
-  @override
-  bool get shouldCursorBlink => false;
-
-  @override
-  CursorStyle get cursorStyle => CursorStyle.cover;
-
-  @override
-  Rect getBlockRect({
-    bool shiftWithBaseOffset = false,
-  }) {
-    final imageBox = imageKey.currentContext?.findRenderObject();
-    if (imageBox is RenderBox) {
-      return Offset.zero & imageBox.size;
-    }
-
-    return Rect.zero;
-  }
-
-  @override
-  Rect? getCursorRectInPosition(
-    Position position, {
-    bool shiftWithBaseOffset = false,
-  }) {
-    if (_renderBox == null) {
-      return null;
-    }
-    final size = _renderBox!.size;
-
-    return Rect.fromLTWH(-size.width / 2.0, 0, size.width, size.height);
-  }
-
-  @override
-  List<Rect> getRectsInSelection(
-    Selection selection, {
-    bool shiftWithBaseOffset = false,
-  }) {
-    if (_renderBox == null) {
-      return [];
-    }
-    final parentBox = context.findRenderObject();
-    final imageBox = imageKey.currentContext?.findRenderObject();
-    if (parentBox is RenderBox && imageBox is RenderBox) {
-      return [
-        imageBox.localToGlobal(Offset.zero, ancestor: parentBox) &
-            imageBox.size,
-      ];
-    }
-
-    return [Offset.zero & _renderBox!.size];
-  }
-
-  @override
-  Selection getSelectionInRange(Offset start, Offset end) => Selection.single(
-        path: widget.node.path,
-        startOffset: 0,
-        endOffset: 1,
-      );
-
-  @override
-  Offset localToGlobal(
-    Offset offset, {
-    bool shiftWithBaseOffset = false,
-  }) =>
-      _renderBox!.localToGlobal(offset);
 }
 
 extension AlignmentExtension on Alignment {

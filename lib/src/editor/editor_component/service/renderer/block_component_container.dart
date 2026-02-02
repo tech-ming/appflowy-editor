@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/editor/block_component/base_component/non_editable_block_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -7,6 +8,7 @@ import 'package:provider/provider.dart';
 /// 1. used to update the child widget when node is changed
 /// ~~2. used to show block component actions~~
 /// 3. used to add the layer link to the child widget
+/// 4. automatically wraps non-editable blocks (delta == null) with selection support
 class BlockComponentContainer extends StatelessWidget {
   const BlockComponentContainer({
     super.key,
@@ -21,21 +23,32 @@ class BlockComponentContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final child = ChangeNotifierProvider<Node>.value(
+    return ChangeNotifierProvider<Node>.value(
       value: node,
       child: Consumer<Node>(
         builder: (_, __, ___) {
-          AppFlowyEditorLog.editor
-              .debug('node is rebuilding...: type: ${node.type} ');
+          AppFlowyEditorLog.editor.debug(
+            'node is rebuilding...: type: ${node.type} ',
+          );
+
+          // 构建原始子 widget
+          Widget child = builder(context);
+
+          // 非文本块（delta == null）自动包装选区能力
+          if (node.delta == null) {
+            child = NonEditableBlockWrapper(
+              key: node.key,
+              node: node,
+              child: child,
+            );
+          }
 
           return CompositedTransformTarget(
             link: node.layerLink,
-            child: builder(context),
+            child: child,
           );
         },
       ),
     );
-
-    return child;
   }
 }

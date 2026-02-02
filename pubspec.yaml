@@ -35,8 +35,15 @@ dependencies:
   scroll_to_index: "^3.0.1"
   string_validator: "^1.0.0"
   universal_html: "^2.2.4"
-  universal_platform: ^1.1.0
-  url_launcher: "^6.1.11"
+  universal_platform:
+    git:
+      url: https://gitcode.com/tech-ming/flutter-universal-platform.git
+      ref: br_v1.1.0_ohos
+  url_launcher:
+    git:
+      url: https://gitcode.com/openharmony-tpc/flutter_packages.git
+      path: packages/url_launcher/url_launcher
+      ref: br_url_launcher-v6.3.0_ohos
 
 dev_dependencies:
   # awesome_lints:  # 临时注释以解决网络问题

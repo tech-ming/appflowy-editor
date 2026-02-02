@@ -1,143 +1,124 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# AppFlowy Editor（HarmonyOS 适配版）
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
+基于 [AppFlowy Editor](https://github.com/AppFlowy-IO/appflowy-editor) 的 HarmonyOS 适配分支，为日记应用提供富文本编辑能力。
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
+## 概述
 
-<h1 align="center"><b>AppFlowy Editor</b></h1>
+本包是 AppFlowy Editor v6.1.0 的 fork 版本，主要针对 HarmonyOS（鸿蒙）平台进行了适配和优化。
 
-<p align="center">A highly customizable rich-text editor for Flutter</p>
+## 主要改动
 
-<p align="center">
-    <a href="https://discord.gg/ZCCYN4Anzq"><b>Discord</b></a> •
-    <a href="https://twitter.com/appflowy"><b>Twitter</b></a>
-</p>
+### HarmonyOS 平台适配
 
-<p align="center">
-    <a href="https://codecov.io/github/AppFlowy-IO/appflowy-editor" >
-        <img src="https://codecov.io/github/AppFlowy-IO/appflowy-editor/branch/main/graph/badge.svg?token=BXTGUXTWRU"/>
-    </a>
-</p>
+- **Flutter 版本兼容**：降级至 Flutter 3.27.0 以支持 OpenHarmony Flutter SDK
+- **键盘高度插件**：使用鸿蒙适配版 `keyboard_height_plugin`
+- **平台检测**：使用鸿蒙适配版 `universal_platform`，支持 `UniversalPlatform.isOhos`
+- **URL 启动器**：使用鸿蒙适配版 `url_launcher`，支持内置浏览器
 
-<div align="center">
-    <img src="https://github.com/AppFlowy-IO/appflowy-editor/blob/main/documentation/images/showcase.png?raw=true" width = "700" style = "padding: 100">
-</div>
+### 编辑器优化
 
-## Key Features
+- **非文本块删除**：删除非文本块时，整个块被删除并替换为空文本行（改善用户体验）
+- **手机工具栏**：移除工具栏高度中的安全区域部分（适配全面屏）
 
-* Build rich, intuitive editors
-* Design and modify an ever-expanding list of customizable features including
-  * block components (such as form input controls, numbered lists, and rich text widgets)
-  * shortcut events
-  * themes
-  * selection menu
-  * toolbar menu
-* [Test Coverage](https://github.com/AppFlowy-IO/appflowy-editor/blob/main/documentation/testing.md) and ongoing maintenance by AppFlowy's core team and community of more than 1,000 builders
+## 依赖说明
 
-| Preview                | Customize your own theme   |
-| ---------------------- | ------------------------   |
-| ![Preview](documentation/images/preview.jpg) | ![Customize your own theme](documentation/images/theme.jpg) |
-
-| Change the color of your text       | Format your text   |
-| ---------------------- | ----------------------     |
-| ![Color](documentation/images/color.jpg) | ![Format](documentation/images/format.jpg) |
-
-
-## Getting Started
-
-Add the AppFlowy editor [Flutter package](https://docs.flutter.dev/development/packages-and-plugins/using-packages) to your environment.
-
-```shell
-flutter pub add appflowy_editor
-flutter pub get
+```yaml
+dependencies:
+  # HarmonyOS 适配依赖
+  keyboard_height_plugin:
+    git:
+      url: https://gitcode.com/tech-ming/keyboard_height_plugin.git
+      ref: br_v0.2.0_ohos
+  universal_platform:
+    git:
+      url: https://gitcode.com/tech-ming/flutter-universal-platform.git
+      ref: br_v1.1.0_ohos
+  url_launcher:
+    git:
+      url: https://gitcode.com/openharmony-tpc/flutter_packages.git
+      path: packages/url_launcher/url_launcher
+      ref: br_url_launcher-v6.3.0_ohos
 ```
 
-## Creating Your First Editor
+## 使用方法
 
-Start by creating a new empty AppFlowyEditor object.
+### 基本用法
 
 ```dart
-final editorState = EditorState.blank(withInitialText: true); // with an empty paragraph
+import 'package:appflowy_editor/appflowy_editor.dart';
+
+// 创建空白编辑器
+final editorState = EditorState.blank(withInitialText: true);
 final editor = AppFlowyEditor(
   editorState: editorState,
 );
-```
 
-You can also create an editor from a JSON object in order to configure your initial state. Or you can [create an editor from Markdown or Quill Delta](https://github.com/AppFlowy-IO/appflowy-editor/blob/main/documentation/importing.md).
-
-```dart
-final json = jsonDecode('YOUR INPUT JSON STRING');
+// 从 JSON 创建编辑器
+final json = jsonDecode('YOUR JSON STRING');
 final editorState = EditorState(document: Document.fromJson(json));
 final editor = AppFlowyEditor(
   editorState: editorState,
 );
 ```
 
-> Note: The parameters `localizationsDelegates` need to be assigned in MaterialApp widget
+### 国际化配置
+
+在 `MaterialApp` 中添加本地化代理：
+
 ```dart
 MaterialApp(
   localizationsDelegates: const [
     AppFlowyEditorLocalizations.delegate,
-  ]，
+  ],
 );
 ```
 
-To get a sense of how the AppFlowy Editor works, run our example:
+## HarmonyOS 内置浏览器配置
 
-```shell
-git clone https://github.com/AppFlowy-IO/appflowy-editor.git
-flutter pub get
-flutter run
+在 HarmonyOS 平台上点击链接时，会使用应用内置浏览器打开。需要在 ohos 项目中配置：
+
+### 1. 注册页面路由
+
+编辑 `ohos/entry/src/main/resources/base/profile/main_pages.json`：
+
+```json
+{
+  "src": [
+    "pages/Index",
+    "pages/LaunchInAppPage"
+  ]
+}
 ```
 
-## Customizing Your Editor
+### 2. 创建浏览器页面
 
-### Customizing theme
+创建 `ohos/entry/src/main/ets/pages/LaunchInAppPage.ets`：
 
-Please refer to our documentation on customizing AppFlowy for a detailed discussion about [customizing theme](https://github.com/AppFlowy-IO/appflowy-editor/blob/main/documentation/customizing.md#customizing-a-theme).
+```typescript
+ import { InAppBrowser } from 'url_launcher_ohos/src/main/ets/components/plugin/InAppBrowser';
 
- * See further examples of [how AppFlowy custom the theme](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/appflowy_flutter/lib/plugins/document/presentation/editor_style.dart)
+ @Entry
+ @Component
+ struct LaunchInAppPage {
 
-### Customizing Block Components
+   build() {
+     Row() {
+       InAppBrowser()
+     }
+   }
+ }
+```
 
-Please refer to our documentation on customizing AppFlowy for a detailed discussion about [customizing components](https://github.com/AppFlowy-IO/appflowy-editor/blob/main/documentation/customizing.md#customize-a-component).
+## 上游仓库
 
-Below are some examples of component customizations:
+- **原始仓库**：[AppFlowy-IO/appflowy-editor](https://github.com/AppFlowy-IO/appflowy-editor)
+- **基于版本**：v6.1.0
 
- * [Todo List Block Component](https://github.com/AppFlowy-IO/appflowy-editor/blob/main/lib/src/editor/block_component/todo_list_block_component/todo_list_block_component.dart) demonstrates how to extend new styles based on existing rich text components
- * [Divider Block Component](https://github.com/AppFlowy-IO/appflowy-editor/blob/main/lib/src/editor/block_component/divider_block_component/divider_block_component.dart) demonstrates how to extend a new block component and render it
- * See further examples of [AppFlowy](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/appflowy_flutter/lib/plugins/document/presentation/editor_page.dart)
+## 许可证
 
-### Customizing Shortcut Events
+本项目遵循原始 AppFlowy Editor 的双重许可：
 
-Please refer to our documentation on customizing AppFlowy for a detailed discussion about [customizing shortcut events](https://github.com/AppFlowy-IO/appflowy-editor/blob/main/documentation/customizing.md#customize-a-shortcut-event).
+1. GNU Affero General Public License Version 3
+2. Mozilla Public License, Version 2.0 (MPL)
 
-Below are some examples of shortcut event customizations:
-
- * [BIUS](https://github.com/AppFlowy-IO/appflowy-editor/tree/main/lib/src/editor/editor_component/service/shortcuts/character_shortcut_events/format_single_character) demonstrates how to make text bold/italic/underline/strikethrough through shortcut keys
- * Need more examples? Check out [shortcuts](https://github.com/AppFlowy-IO/appflowy-editor/tree/main/lib/src/editor/editor_component/service/shortcuts)
-
-## Migration Guide
-Please refer to the [migration documentation](https://github.com/AppFlowy-IO/appflowy-editor/blob/main/documentation/UPGRADING.md).
-
-## Glossary
-Please refer to the API documentation.
-
-## Contributing
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
-
-Please look at [CONTRIBUTING.md](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/contributing-to-appflowy) for details.
-
-## License
-All code contributed to the AppFlowy Editor project is dual-licensed, and released under both of the following licenses:
-1. The GNU Affero General Public License Version 3
-2. The Mozilla Public License, Version 2.0 (the “MPL”)
-
-See [LICENSE](https://github.com/AppFlowy-IO/appflowy-editor/blob/main/LICENSE) for more information.
+详见 [LICENSE](https://github.com/AppFlowy-IO/appflowy-editor/blob/main/LICENSE)

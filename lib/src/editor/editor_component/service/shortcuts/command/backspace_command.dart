@@ -90,11 +90,20 @@ CommandShortcutEventHandler _backspaceInCollapsedSelection = (editorState) {
       editorState.apply(transaction);
       return KeyEventResult.handled;
     } else {
-      // 光标在非文本块右侧（offset=1）：删除整个块
+      // 光标在非文本块右侧（offset=1）：删除整个块，替换为空文本行
+      final targetPath = position.path;
+
+      // 先插入空段落到当前位置，再删除非文本块
+      // 注意：insertNode 会把新节点插入到指定路径，原节点往后移
+      // 所以删除时要用 targetPath.next
+      transaction.insertNode(targetPath, paragraphNode());
       transaction.deleteNode(node);
+
+      // 光标定位到新段落开头
       transaction.afterSelection = Selection.collapsed(
-        Position(path: position.path, offset: 0),
+        Position(path: targetPath, offset: 0),
       );
+
       editorState.apply(transaction);
       return KeyEventResult.handled;
     }

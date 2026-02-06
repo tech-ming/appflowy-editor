@@ -74,6 +74,10 @@ CommandShortcutEventHandler _backspaceInCollapsedSelection = (editorState) {
       } else {
         // 没有上一个文本块，尝试移到上一个非文本块的右侧
         final prevAny = node.previousNodeWhere((element) {
+          // 排除 page 根节点，它的 path 为空会导致光标位置异常
+          if (element.type == PageBlockKeys.type) {
+            return false;
+          }
           prevTableParent = element
               .findParent((element) => element.type == TableBlockKeys.type);
           return tableParent != prevTableParent || true;
@@ -146,6 +150,10 @@ CommandShortcutEventHandler _backspaceInCollapsedSelection = (editorState) {
 
       // 首先检查前一个节点（无论是否有 delta）
       final prevAny = node.previousNodeWhere((element) {
+        // 排除 page 根节点，它的 path 为空会导致光标位置异常
+        if (element.type == PageBlockKeys.type) {
+          return false;
+        }
         prevTableParent = element
             .findParent((element) => element.type == TableBlockKeys.type);
         return tableParent != prevTableParent || true; // 找到任何前一个节点

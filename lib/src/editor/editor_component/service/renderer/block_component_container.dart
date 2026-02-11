@@ -35,9 +35,10 @@ class BlockComponentContainer extends StatelessWidget {
           Widget child = builder(context);
 
           // 非文本块（delta == null）自动包装选区能力
+          // 不传入 key，让 Flutter 自动管理 widget 生命周期
+          // node.key 是 GlobalKey，不能用作子 widget 的 key，否则会导致冲突
           if (node.delta == null) {
             child = NonEditableBlockWrapper(
-              key: node.key,
               node: node,
               child: child,
             );

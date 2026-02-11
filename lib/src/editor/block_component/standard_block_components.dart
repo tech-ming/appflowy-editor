@@ -109,6 +109,9 @@ final List<CharacterShortcutEvent> standardCharacterShortcutEvents = [
   // markdown syntax
   ...markdownSyntaxShortcutEvents,
 
+  // 输入空格时自动将 URL / 电话号码文本转为超链接
+  formatAutoLink,
+
   // convert => to arrow
   formatGreaterEqual,
 ];

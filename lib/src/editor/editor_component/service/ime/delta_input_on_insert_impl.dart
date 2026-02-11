@@ -1,5 +1,6 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/editor/editor_component/service/ime/character_shortcut_event_helper.dart';
+import 'package:appflowy_editor/src/editor/editor_component/service/paste/editor_paste_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -78,6 +79,20 @@ Future<void> onInsert(
     ),
   );
 
+  // 粘贴场景：委托给统一粘贴服务处理 URL 自动识别
+  final handled = await EditorPasteService.processInsertedText(
+    editorState: editorState,
+    node: node,
+    startOffset: selection.startIndex,
+    text: textInserted,
+    afterSelection: afterSelection,
+  );
+
+  if (handled) {
+    return;
+  }
+
+  // 普通文本插入
   final transaction = editorState.transaction
     ..insertText(
       node,

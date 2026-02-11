@@ -1,6 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/editor/editor_component/service/ime/character_shortcut_event_helper.dart';
 import 'package:appflowy_editor/src/editor/editor_component/service/ime/delta_input_impl.dart';
+import 'package:appflowy_editor/src/editor/editor_component/service/paste/editor_paste_service.dart';
 import 'package:appflowy_editor/src/editor/util/platform_extension.dart';
 import 'package:flutter/services.dart';
 
@@ -43,9 +44,6 @@ Future<void> onReplace(
     }
 
     final node = editorState.getNodesInSelection(selection).first;
-    final transaction = editorState.transaction;
-    final start = replacement.replacedRange.start;
-    final length = replacement.replacedRange.end - start;
     final afterSelection = Selection(
       start: Position(
         path: node.path,
@@ -56,6 +54,28 @@ Future<void> onReplace(
         offset: replacement.selection.extentOffset,
       ),
     );
+
+    // 粘贴场景：选中文字 + 粘贴纯 URL → 转超链接（委托给统一服务）
+    if (!selection.isCollapsed) {
+      final handled = await EditorPasteService.processReplacedTextAsLink(
+        editorState: editorState,
+        node: node,
+        replacementText: replacement.replacementText,
+        replaceStart: replacement.replacedRange.start,
+        replaceLength:
+            replacement.replacedRange.end - replacement.replacedRange.start,
+        afterSelection: afterSelection,
+      );
+
+      if (handled) {
+        return;
+      }
+    }
+
+    // 常规替换
+    final transaction = editorState.transaction;
+    final start = replacement.replacedRange.start;
+    final length = replacement.replacedRange.end - start;
     transaction
       ..replaceText(node, start, length, replacement.replacementText)
       ..afterSelection = afterSelection;

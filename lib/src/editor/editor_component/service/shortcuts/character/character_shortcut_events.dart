@@ -1,3 +1,4 @@
+export 'format_auto_link.dart';
 export 'format_double_character/format_arrow_character.dart';
 export 'format_double_character/format_bold.dart';
 export 'format_double_character/format_double_characters.dart';

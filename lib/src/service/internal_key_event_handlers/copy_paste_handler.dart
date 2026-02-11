@@ -1,16 +1,10 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/editor/editor_component/service/paste/editor_paste_service.dart';
 import 'package:flutter/widgets.dart';
 
 int _textLengthOfNode(Node node) => node.delta?.length ?? 0;
-RegExp _linkRegex = RegExp(
-  r'https?://(?:www\.)?[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}(?:/[^\s]*)?',
-);
 
-RegExp _phoneRegex = RegExp(r'^\+?' // Optional '+' at start
-    r'(?:[0-9][\s-.]?)+' // Sequence of digits with optional separators
-    r'[0-9]$' // Ensure it ends with a digit
-    );
-
+/// 粘贴单行纯文本（委托给 EditorPasteService 构建带链接检测的 Delta）
 void _pasteSingleLine(
   EditorState editorState,
   Selection selection,
@@ -18,26 +12,32 @@ void _pasteSingleLine(
 ) {
   assert(selection.isCollapsed);
 
-  // handle link
-  final Attributes attributes = _linkRegex.hasMatch(line)
-      ? {
-          AppFlowyRichTextKeys.href: line,
-        }
-      : _phoneRegex.hasMatch(line)
-          ? {
-              AppFlowyRichTextKeys.href: line,
-            }
-          : {};
-
   final node = editorState.getNodeAtPath(selection.end.path)!;
-  final transaction = editorState.transaction
-    ..insertText(node, selection.startIndex, line, attributes: attributes)
-    ..afterSelection = (Selection.collapsed(
-      Position(
-        path: selection.end.path,
-        offset: selection.startIndex + line.length,
-      ),
-    ));
+  final transaction = editorState.transaction;
+
+  // 使用统一粘贴服务构建带链接检测的 Delta
+  final delta = EditorPasteService.buildDeltaWithLinks(line);
+
+  // 将 Delta 中的每个操作逐个插入
+  int currentOffset = selection.startIndex;
+  for (final op in delta.toList()) {
+    if (op is TextInsert) {
+      transaction.insertText(
+        node,
+        currentOffset,
+        op.text,
+        attributes: op.attributes,
+      );
+      currentOffset += op.text.length;
+    }
+  }
+
+  transaction.afterSelection = Selection.collapsed(
+    Position(
+      path: selection.end.path,
+      offset: selection.startIndex + line.length,
+    ),
+  );
   editorState.apply(transaction);
 }
 
@@ -51,7 +51,6 @@ void _pasteMarkdown(EditorState editorState, String markdown) {
 
   if (lines.length == 1) {
     _pasteSingleLine(editorState, selection, lines[0]);
-
     return;
   }
 
@@ -75,7 +74,34 @@ void _pasteMarkdown(EditorState editorState, String markdown) {
   editorState.apply(transaction);
 }
 
+/// 粘贴纯文本（委托给统一粘贴服务处理链接检测和选中文字转链接）
 void handlePastePlainText(EditorState editorState, String plainText) {
+  final selection = editorState.selection?.normalized;
+  if (selection == null) {
+    return;
+  }
+
+  // 选中文字 + 粘贴 URL → 转超链接（委托给统一服务）
+  if (!selection.isCollapsed && selection.isSingle) {
+    // 使用异步方式调用，因为 maybeConvertSelectedTextToLink 是 Future
+    () async {
+      if (await EditorPasteService.maybeConvertSelectedTextToLink(
+        editorState,
+        plainText,
+      )) {
+        return;
+      }
+      // 未转链接，继续常规粘贴
+      _doPastePlainText(editorState, plainText);
+    }();
+    return;
+  }
+
+  _doPastePlainText(editorState, plainText);
+}
+
+/// 执行实际的纯文本粘贴
+void _doPastePlainText(EditorState editorState, String plainText) {
   final selection = editorState.selection?.normalized;
   if (selection == null) {
     return;
@@ -89,7 +115,6 @@ void handlePastePlainText(EditorState editorState, String plainText) {
   if (lines.isEmpty) {
     return;
   } else if (lines.length == 1) {
-    // single line
     _pasteSingleLine(editorState, selection, lines.first);
   } else {
     _pasteMarkdown(editorState, plainText);
@@ -109,7 +134,6 @@ void pasteHTML(EditorState editorState, String html) {
     if (delta == null) {
       return true;
     }
-
     return delta.isNotEmpty;
   });
   if (htmlToNodes.isEmpty) {
@@ -299,6 +323,8 @@ void _pasteMultipleLinesInText(
   editorState.apply(transaction);
 }
 
+/// 粘贴入口（右键菜单）
+/// 委托给统一粘贴服务处理
 void handlePaste(EditorState editorState) async {
   final data = await AppFlowyClipboard.getData();
 
@@ -319,11 +345,10 @@ void handlePaste(EditorState editorState) async {
 ) {
   final delta = node.delta;
   if (delta == null) {
-    return (node, null); // // Node doesn't have a delta
+    return (node, null);
   }
 
   final previousDelta = delta.slice(0, selectionIndex);
-
   final nextDelta = delta.slice(selectionIndex, delta.length);
 
   return (
@@ -348,12 +373,10 @@ void handlePaste(EditorState editorState) async {
 void _pasteRichClipboard(EditorState editorState, AppFlowyClipboardData data) {
   if (data.html != null) {
     pasteHTML(editorState, data.html!);
-
     return;
   }
   if (data.text != null) {
     handlePastePlainText(editorState, data.text!);
-
     return;
   }
 }
@@ -366,11 +389,10 @@ bool _isNodeInsideTable(Node node) {
     }
     current = current.parent;
   }
-
   return false;
 }
 
-/// 2. delete selected content
+/// 删除选中内容
 void handleCut(EditorState editorState) {
   handleCopy(editorState);
   deleteSelectedContent(editorState);
@@ -383,7 +405,6 @@ Future<void> deleteSelectedContent(EditorState editorState) async {
   }
   final transaction = editorState.transaction;
   if (selection.isCollapsed) {
-    // if the selection is collapsed, delete the current node
     final node = editorState.getNodeAtPath(selection.end.path);
     if (node == null || _isNodeInsideTable(node)) {
       return;
@@ -396,7 +417,6 @@ Future<void> deleteSelectedContent(EditorState editorState) async {
       );
     }
   } else {
-    // if the selection is not collapsed, delete the selection
     await editorState.deleteSelection(selection);
     transaction.afterSelection = Selection.collapsed(selection.start);
   }

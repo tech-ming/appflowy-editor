@@ -18,17 +18,20 @@ class AppFlowyEditorLocalizations {
   static AppFlowyEditorLocalizations? _current;
 
   static AppFlowyEditorLocalizations get current {
-    assert(_current != null,
-        'No instance of AppFlowyEditorLocalizations was loaded. Try to initialize the AppFlowyEditorLocalizations delegate before accessing AppFlowyEditorLocalizations.current.');
+    assert(
+      _current != null,
+      'No instance of AppFlowyEditorLocalizations was loaded. Try to initialize the AppFlowyEditorLocalizations delegate before accessing AppFlowyEditorLocalizations.current.',
+    );
     return _current!;
   }
 
   static const AppLocalizationDelegate delegate = AppLocalizationDelegate();
 
   static Future<AppFlowyEditorLocalizations> load(Locale locale) {
-    final name = (locale.countryCode?.isEmpty ?? false)
-        ? locale.languageCode
-        : locale.toString();
+    final name =
+        (locale.countryCode?.isEmpty ?? false)
+            ? locale.languageCode
+            : locale.toString();
     final localeName = Intl.canonicalizedLocale(name);
     return initializeMessages(localeName).then((_) {
       Intl.defaultLocale = localeName;
@@ -41,1844 +44,1173 @@ class AppFlowyEditorLocalizations {
 
   static AppFlowyEditorLocalizations of(BuildContext context) {
     final instance = AppFlowyEditorLocalizations.maybeOf(context);
-    assert(instance != null,
-        'No instance of AppFlowyEditorLocalizations present in the widget tree. Did you add AppFlowyEditorLocalizations.delegate in localizationsDelegates?');
+    assert(
+      instance != null,
+      'No instance of AppFlowyEditorLocalizations present in the widget tree. Did you add AppFlowyEditorLocalizations.delegate in localizationsDelegates?',
+    );
     return instance!;
   }
 
   static AppFlowyEditorLocalizations? maybeOf(BuildContext context) {
     return Localizations.of<AppFlowyEditorLocalizations>(
-        context, AppFlowyEditorLocalizations);
+      context,
+      AppFlowyEditorLocalizations,
+    );
   }
 
-  /// `Bold`
+  /// `粗体`
   String get bold {
-    return Intl.message(
-      'Bold',
-      name: 'bold',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('粗体', name: 'bold', desc: '', args: []);
   }
 
-  /// `Bulleted List`
+  /// `无序列表`
   String get bulletedList {
-    return Intl.message(
-      'Bulleted List',
-      name: 'bulletedList',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('无序列表', name: 'bulletedList', desc: '', args: []);
   }
 
-  /// `Checkbox`
+  /// `复选框`
   String get checkbox {
-    return Intl.message(
-      'Checkbox',
-      name: 'checkbox',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('复选框', name: 'checkbox', desc: '', args: []);
   }
 
-  /// `Embed Code`
+  /// `代码块`
   String get embedCode {
-    return Intl.message(
-      'Embed Code',
-      name: 'embedCode',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('代码块', name: 'embedCode', desc: '', args: []);
   }
 
-  /// `H1`
+  /// `一级标题`
   String get heading1 {
-    return Intl.message(
-      'H1',
-      name: 'heading1',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('一级标题', name: 'heading1', desc: '', args: []);
   }
 
-  /// `H2`
+  /// `二级标题`
   String get heading2 {
-    return Intl.message(
-      'H2',
-      name: 'heading2',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('二级标题', name: 'heading2', desc: '', args: []);
   }
 
-  /// `H3`
+  /// `三级标题`
   String get heading3 {
-    return Intl.message(
-      'H3',
-      name: 'heading3',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('三级标题', name: 'heading3', desc: '', args: []);
   }
 
-  /// `Highlight`
+  /// `高亮`
   String get highlight {
-    return Intl.message(
-      'Highlight',
-      name: 'highlight',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('高亮', name: 'highlight', desc: '', args: []);
   }
 
-  /// `Color`
+  /// `颜色`
   String get color {
-    return Intl.message(
-      'Color',
-      name: 'color',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('颜色', name: 'color', desc: '', args: []);
   }
 
-  /// `Image`
+  /// `图片`
   String get image {
-    return Intl.message(
-      'Image',
-      name: 'image',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('图片', name: 'image', desc: '', args: []);
   }
 
-  /// `Italic`
+  /// `斜体`
   String get italic {
-    return Intl.message(
-      'Italic',
-      name: 'italic',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('斜体', name: 'italic', desc: '', args: []);
   }
 
-  /// `Link`
+  /// `链接`
   String get link {
-    return Intl.message(
-      'Link',
-      name: 'link',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('链接', name: 'link', desc: '', args: []);
   }
 
-  /// `Numbered List`
+  /// `有序列表`
   String get numberedList {
-    return Intl.message(
-      'Numbered List',
-      name: 'numberedList',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('有序列表', name: 'numberedList', desc: '', args: []);
   }
 
-  /// `Quote`
+  /// `引文`
   String get quote {
-    return Intl.message(
-      'Quote',
-      name: 'quote',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('引文', name: 'quote', desc: '', args: []);
   }
 
-  /// `Strikethrough`
+  /// `删除线`
   String get strikethrough {
-    return Intl.message(
-      'Strikethrough',
-      name: 'strikethrough',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('删除线', name: 'strikethrough', desc: '', args: []);
   }
 
-  /// `Text`
+  /// `文本`
   String get text {
-    return Intl.message(
-      'Text',
-      name: 'text',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('文本', name: 'text', desc: '', args: []);
   }
 
-  /// `Underline`
+  /// `下划线`
   String get underline {
-    return Intl.message(
-      'Underline',
-      name: 'underline',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('下划线', name: 'underline', desc: '', args: []);
   }
 
-  /// `Default`
+  /// `默认`
   String get fontColorDefault {
-    return Intl.message(
-      'Default',
-      name: 'fontColorDefault',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('默认', name: 'fontColorDefault', desc: '', args: []);
   }
 
-  /// `Gray`
+  /// `灰色`
   String get fontColorGray {
-    return Intl.message(
-      'Gray',
-      name: 'fontColorGray',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('灰色', name: 'fontColorGray', desc: '', args: []);
   }
 
-  /// `Brown`
+  /// `棕色`
   String get fontColorBrown {
-    return Intl.message(
-      'Brown',
-      name: 'fontColorBrown',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('棕色', name: 'fontColorBrown', desc: '', args: []);
   }
 
-  /// `Orange`
+  /// `橙色`
   String get fontColorOrange {
-    return Intl.message(
-      'Orange',
-      name: 'fontColorOrange',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('橙色', name: 'fontColorOrange', desc: '', args: []);
   }
 
-  /// `Yellow`
+  /// `黄色`
   String get fontColorYellow {
-    return Intl.message(
-      'Yellow',
-      name: 'fontColorYellow',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('黄色', name: 'fontColorYellow', desc: '', args: []);
   }
 
-  /// `Green`
+  /// `绿色`
   String get fontColorGreen {
-    return Intl.message(
-      'Green',
-      name: 'fontColorGreen',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('绿色', name: 'fontColorGreen', desc: '', args: []);
   }
 
-  /// `Blue`
+  /// `蓝色`
   String get fontColorBlue {
-    return Intl.message(
-      'Blue',
-      name: 'fontColorBlue',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('蓝色', name: 'fontColorBlue', desc: '', args: []);
   }
 
-  /// `Purple`
+  /// `紫色`
   String get fontColorPurple {
-    return Intl.message(
-      'Purple',
-      name: 'fontColorPurple',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('紫色', name: 'fontColorPurple', desc: '', args: []);
   }
 
-  /// `Pink`
+  /// `粉红色`
   String get fontColorPink {
-    return Intl.message(
-      'Pink',
-      name: 'fontColorPink',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('粉红色', name: 'fontColorPink', desc: '', args: []);
   }
 
-  /// `Red`
+  /// `红色`
   String get fontColorRed {
-    return Intl.message(
-      'Red',
-      name: 'fontColorRed',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('红色', name: 'fontColorRed', desc: '', args: []);
   }
 
-  /// `Default background`
+  /// `默认背景色`
   String get backgroundColorDefault {
     return Intl.message(
-      'Default background',
+      '默认背景色',
       name: 'backgroundColorDefault',
       desc: '',
       args: [],
     );
   }
 
-  /// `Gray background`
+  /// `灰色背景`
   String get backgroundColorGray {
     return Intl.message(
-      'Gray background',
+      '灰色背景',
       name: 'backgroundColorGray',
       desc: '',
       args: [],
     );
   }
 
-  /// `Brown background`
+  /// `棕色背景`
   String get backgroundColorBrown {
     return Intl.message(
-      'Brown background',
+      '棕色背景',
       name: 'backgroundColorBrown',
       desc: '',
       args: [],
     );
   }
 
-  /// `Orange background`
+  /// `橙色背景`
   String get backgroundColorOrange {
     return Intl.message(
-      'Orange background',
+      '橙色背景',
       name: 'backgroundColorOrange',
       desc: '',
       args: [],
     );
   }
 
-  /// `Yellow background`
+  /// `黄色背景`
   String get backgroundColorYellow {
     return Intl.message(
-      'Yellow background',
+      '黄色背景',
       name: 'backgroundColorYellow',
       desc: '',
       args: [],
     );
   }
 
-  /// `Green background`
+  /// `绿色背景`
   String get backgroundColorGreen {
     return Intl.message(
-      'Green background',
+      '绿色背景',
       name: 'backgroundColorGreen',
       desc: '',
       args: [],
     );
   }
 
-  /// `Blue background`
+  /// `蓝色背景`
   String get backgroundColorBlue {
     return Intl.message(
-      'Blue background',
+      '蓝色背景',
       name: 'backgroundColorBlue',
       desc: '',
       args: [],
     );
   }
 
-  /// `Purple background`
+  /// `紫色背景`
   String get backgroundColorPurple {
     return Intl.message(
-      'Purple background',
+      '紫色背景',
       name: 'backgroundColorPurple',
       desc: '',
       args: [],
     );
   }
 
-  /// `Pink background`
+  /// `粉色背景`
   String get backgroundColorPink {
     return Intl.message(
-      'Pink background',
+      '粉色背景',
       name: 'backgroundColorPink',
       desc: '',
       args: [],
     );
   }
 
-  /// `Red background`
+  /// `红色背景`
   String get backgroundColorRed {
-    return Intl.message(
-      'Red background',
-      name: 'backgroundColorRed',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('红色背景', name: 'backgroundColorRed', desc: '', args: []);
   }
 
-  /// `Done`
+  /// `完成`
   String get done {
-    return Intl.message(
-      'Done',
-      name: 'done',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('完成', name: 'done', desc: '', args: []);
   }
 
-  /// `Cancel`
+  /// `取消`
   String get cancel {
-    return Intl.message(
-      'Cancel',
-      name: 'cancel',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('取消', name: 'cancel', desc: '', args: []);
   }
 
-  /// `Tint 1`
+  /// `色调1`
   String get tint1 {
-    return Intl.message(
-      'Tint 1',
-      name: 'tint1',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('色调1', name: 'tint1', desc: '', args: []);
   }
 
-  /// `Tint 2`
+  /// `色调2`
   String get tint2 {
-    return Intl.message(
-      'Tint 2',
-      name: 'tint2',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('色调2', name: 'tint2', desc: '', args: []);
   }
 
-  /// `Tint 3`
+  /// `色调3`
   String get tint3 {
-    return Intl.message(
-      'Tint 3',
-      name: 'tint3',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('色调3', name: 'tint3', desc: '', args: []);
   }
 
-  /// `Tint 4`
+  /// `色调4`
   String get tint4 {
-    return Intl.message(
-      'Tint 4',
-      name: 'tint4',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('色调4', name: 'tint4', desc: '', args: []);
   }
 
-  /// `Tint 5`
+  /// `色调5`
   String get tint5 {
-    return Intl.message(
-      'Tint 5',
-      name: 'tint5',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('色调5', name: 'tint5', desc: '', args: []);
   }
 
-  /// `Tint 6`
+  /// `色调6`
   String get tint6 {
-    return Intl.message(
-      'Tint 6',
-      name: 'tint6',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('色调6', name: 'tint6', desc: '', args: []);
   }
 
-  /// `Tint 7`
+  /// `色调7`
   String get tint7 {
-    return Intl.message(
-      'Tint 7',
-      name: 'tint7',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('色调7', name: 'tint7', desc: '', args: []);
   }
 
-  /// `Tint 8`
+  /// `色调8`
   String get tint8 {
-    return Intl.message(
-      'Tint 8',
-      name: 'tint8',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('色调8', name: 'tint8', desc: '', args: []);
   }
 
-  /// `Tint 9`
+  /// `色调9`
   String get tint9 {
-    return Intl.message(
-      'Tint 9',
-      name: 'tint9',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('色调9', name: 'tint9', desc: '', args: []);
   }
 
-  /// `Purple`
+  /// `紫色`
   String get lightLightTint1 {
-    return Intl.message(
-      'Purple',
-      name: 'lightLightTint1',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('紫色', name: 'lightLightTint1', desc: '', args: []);
   }
 
-  /// `Pink`
+  /// `粉红色`
   String get lightLightTint2 {
-    return Intl.message(
-      'Pink',
-      name: 'lightLightTint2',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('粉红色', name: 'lightLightTint2', desc: '', args: []);
   }
 
-  /// `Light Pink`
+  /// `浅粉红色`
   String get lightLightTint3 {
-    return Intl.message(
-      'Light Pink',
-      name: 'lightLightTint3',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('浅粉红色', name: 'lightLightTint3', desc: '', args: []);
   }
 
-  /// `Orange`
+  /// `橙色`
   String get lightLightTint4 {
-    return Intl.message(
-      'Orange',
-      name: 'lightLightTint4',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('橙色', name: 'lightLightTint4', desc: '', args: []);
   }
 
-  /// `Yellow`
+  /// `黄色`
   String get lightLightTint5 {
-    return Intl.message(
-      'Yellow',
-      name: 'lightLightTint5',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('黄色', name: 'lightLightTint5', desc: '', args: []);
   }
 
-  /// `Lime`
+  /// `草绿色`
   String get lightLightTint6 {
-    return Intl.message(
-      'Lime',
-      name: 'lightLightTint6',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('草绿色', name: 'lightLightTint6', desc: '', args: []);
   }
 
-  /// `Green`
+  /// `绿色`
   String get lightLightTint7 {
-    return Intl.message(
-      'Green',
-      name: 'lightLightTint7',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('绿色', name: 'lightLightTint7', desc: '', args: []);
   }
 
-  /// `Aqua`
+  /// `水蓝色`
   String get lightLightTint8 {
-    return Intl.message(
-      'Aqua',
-      name: 'lightLightTint8',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('水蓝色', name: 'lightLightTint8', desc: '', args: []);
   }
 
-  /// `Blue`
+  /// `蓝色`
   String get lightLightTint9 {
-    return Intl.message(
-      'Blue',
-      name: 'lightLightTint9',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `List item`
-  String get listItemPlaceholder {
-    return Intl.message(
-      'List item',
-      name: 'listItemPlaceholder',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `To-do`
-  String get toDoPlaceholder {
-    return Intl.message(
-      'To-do',
-      name: 'toDoPlaceholder',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('蓝色', name: 'lightLightTint9', desc: '', args: []);
   }
 
   /// `URL`
   String get urlHint {
-    return Intl.message(
-      'URL',
-      name: 'urlHint',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('URL', name: 'urlHint', desc: '', args: []);
   }
 
-  /// `Heading 1`
+  /// `一级标题`
   String get mobileHeading1 {
-    return Intl.message(
-      'Heading 1',
-      name: 'mobileHeading1',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('一级标题', name: 'mobileHeading1', desc: '', args: []);
   }
 
-  /// `Heading 2`
+  /// `二级标题`
   String get mobileHeading2 {
-    return Intl.message(
-      'Heading 2',
-      name: 'mobileHeading2',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('二级标题', name: 'mobileHeading2', desc: '', args: []);
   }
 
-  /// `Heading 3`
+  /// `三级标题`
   String get mobileHeading3 {
-    return Intl.message(
-      'Heading 3',
-      name: 'mobileHeading3',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('三级标题', name: 'mobileHeading3', desc: '', args: []);
   }
 
-  /// `Text Color`
+  /// `文字颜色`
   String get textColor {
-    return Intl.message(
-      'Text Color',
-      name: 'textColor',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('文字颜色', name: 'textColor', desc: '', args: []);
   }
 
-  /// `Background Color`
+  /// `背景颜色`
   String get backgroundColor {
-    return Intl.message(
-      'Background Color',
-      name: 'backgroundColor',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('背景颜色', name: 'backgroundColor', desc: '', args: []);
   }
 
-  /// `Add your link`
+  /// `添加链接`
   String get addYourLink {
-    return Intl.message(
-      'Add your link',
-      name: 'addYourLink',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('添加链接', name: 'addYourLink', desc: '', args: []);
   }
 
-  /// `Open link`
+  /// `打开链接`
   String get openLink {
-    return Intl.message(
-      'Open link',
-      name: 'openLink',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('打开链接', name: 'openLink', desc: '', args: []);
   }
 
-  /// `Copy link`
+  /// `复制链接`
   String get copyLink {
-    return Intl.message(
-      'Copy link',
-      name: 'copyLink',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('复制链接', name: 'copyLink', desc: '', args: []);
   }
 
-  /// `Remove link`
+  /// `移除链接`
   String get removeLink {
-    return Intl.message(
-      'Remove link',
-      name: 'removeLink',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('移除链接', name: 'removeLink', desc: '', args: []);
   }
 
-  /// `Edit link`
+  /// `修改链接`
   String get editLink {
-    return Intl.message(
-      'Edit link',
-      name: 'editLink',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('修改链接', name: 'editLink', desc: '', args: []);
   }
 
-  /// `Text`
+  /// `文字`
   String get linkText {
-    return Intl.message(
-      'Text',
-      name: 'linkText',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('文字', name: 'linkText', desc: '', args: []);
   }
 
-  /// `Please enter text`
+  /// `请输入文字`
   String get linkTextHint {
-    return Intl.message(
-      'Please enter text',
-      name: 'linkTextHint',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('请输入文字', name: 'linkTextHint', desc: '', args: []);
   }
 
-  /// `Please enter URL`
+  /// `请输入URL`
   String get linkAddressHint {
-    return Intl.message(
-      'Please enter URL',
-      name: 'linkAddressHint',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('请输入URL', name: 'linkAddressHint', desc: '', args: []);
   }
 
-  /// `Highlight Color`
+  /// `高亮颜色`
   String get highlightColor {
-    return Intl.message(
-      'Highlight Color',
-      name: 'highlightColor',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('高亮颜色', name: 'highlightColor', desc: '', args: []);
   }
 
-  /// `Clear highlight color`
+  /// `清除高亮颜色`
   String get clearHighlightColor {
     return Intl.message(
-      'Clear highlight color',
+      '清除高亮颜色',
       name: 'clearHighlightColor',
       desc: '',
       args: [],
     );
   }
 
-  /// `Custom color`
+  /// `自定义颜色`
   String get customColor {
-    return Intl.message(
-      'Custom color',
-      name: 'customColor',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('自定义颜色', name: 'customColor', desc: '', args: []);
   }
 
-  /// `Hex value`
+  /// `十六进制值`
   String get hexValue {
-    return Intl.message(
-      'Hex value',
-      name: 'hexValue',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('十六进制值', name: 'hexValue', desc: '', args: []);
   }
 
-  /// `Opacity`
+  /// `透明度`
   String get opacity {
-    return Intl.message(
-      'Opacity',
-      name: 'opacity',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('透明度', name: 'opacity', desc: '', args: []);
   }
 
-  /// `Reset to default color`
+  /// `重设为默认颜色`
   String get resetToDefaultColor {
     return Intl.message(
-      'Reset to default color',
+      '重设为默认颜色',
       name: 'resetToDefaultColor',
       desc: '',
       args: [],
     );
   }
 
-  /// `LTR`
+  /// `自左至右`
   String get ltr {
-    return Intl.message(
-      'LTR',
-      name: 'ltr',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('自左至右', name: 'ltr', desc: '', args: []);
   }
 
-  /// `RTL`
+  /// `自右至左`
   String get rtl {
-    return Intl.message(
-      'RTL',
-      name: 'rtl',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('自右至左', name: 'rtl', desc: '', args: []);
   }
 
-  /// `Auto`
+  /// `自动`
   String get auto {
-    return Intl.message(
-      'Auto',
-      name: 'auto',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('自动', name: 'auto', desc: '', args: []);
   }
 
-  /// `Cut`
+  /// `剪切`
   String get cut {
-    return Intl.message(
-      'Cut',
-      name: 'cut',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('剪切', name: 'cut', desc: '', args: []);
   }
 
-  /// `Copy`
+  /// `复制`
   String get copy {
-    return Intl.message(
-      'Copy',
-      name: 'copy',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('复制', name: 'copy', desc: '', args: []);
   }
 
-  /// `Paste`
+  /// `粘贴`
   String get paste {
-    return Intl.message(
-      'Paste',
-      name: 'paste',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('粘贴', name: 'paste', desc: '', args: []);
   }
 
-  /// `Find`
+  /// `查找`
   String get find {
-    return Intl.message(
-      'Find',
-      name: 'find',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('查找', name: 'find', desc: '', args: []);
   }
 
-  /// `Previous match`
+  /// `上一匹配项`
   String get previousMatch {
-    return Intl.message(
-      'Previous match',
-      name: 'previousMatch',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('上一匹配项', name: 'previousMatch', desc: '', args: []);
   }
 
-  /// `Next match`
+  /// `下一匹配项`
   String get nextMatch {
-    return Intl.message(
-      'Next match',
-      name: 'nextMatch',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('下一匹配项', name: 'nextMatch', desc: '', args: []);
   }
 
-  /// `Close`
+  /// `关闭`
   String get closeFind {
-    return Intl.message(
-      'Close',
-      name: 'closeFind',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('关闭', name: 'closeFind', desc: '', args: []);
   }
 
-  /// `Replace`
+  /// `替换`
   String get replace {
-    return Intl.message(
-      'Replace',
-      name: 'replace',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('替换', name: 'replace', desc: '', args: []);
   }
 
-  /// `Replace all`
+  /// `替换全部`
   String get replaceAll {
-    return Intl.message(
-      'Replace all',
-      name: 'replaceAll',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('替换全部', name: 'replaceAll', desc: '', args: []);
   }
 
-  /// `Regex`
+  /// `正则表达式`
   String get regex {
-    return Intl.message(
-      'Regex',
-      name: 'regex',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('正则表达式', name: 'regex', desc: '', args: []);
   }
 
-  /// `Case sensitive`
+  /// `区分大小写`
   String get caseSensitive {
-    return Intl.message(
-      'Case sensitive',
-      name: 'caseSensitive',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('区分大小写', name: 'caseSensitive', desc: '', args: []);
   }
 
-  /// `Regex Error`
+  /// `正则错误`
   String get regexError {
-    return Intl.message(
-      'Regex Error',
-      name: 'regexError',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('正则错误', name: 'regexError', desc: '', args: []);
   }
 
-  /// `No result`
+  /// `无匹配项`
   String get noFindResult {
-    return Intl.message(
-      'No result',
-      name: 'noFindResult',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('无匹配项', name: 'noFindResult', desc: '', args: []);
   }
 
-  /// `Enter a pattern`
+  /// `输入查找内容`
   String get emptySearchBoxHint {
     return Intl.message(
-      'Enter a pattern',
+      '输入查找内容',
       name: 'emptySearchBoxHint',
       desc: '',
       args: [],
     );
   }
 
-  /// `Upload`
+  /// `上传图片`
   String get uploadImage {
-    return Intl.message(
-      'Upload',
-      name: 'uploadImage',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('上传图片', name: 'uploadImage', desc: '', args: []);
   }
 
-  /// `URL`
+  /// `网络图片`
   String get urlImage {
-    return Intl.message(
-      'URL',
-      name: 'urlImage',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('网络图片', name: 'urlImage', desc: '', args: []);
   }
 
-  /// `Incorrect Link`
+  /// `链接错误`
   String get incorrectLink {
-    return Intl.message(
-      'Incorrect Link',
-      name: 'incorrectLink',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('链接错误', name: 'incorrectLink', desc: '', args: []);
   }
 
-  /// `Upload`
+  /// `上传`
   String get upload {
-    return Intl.message(
-      'Upload',
-      name: 'upload',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('上传', name: 'upload', desc: '', args: []);
   }
 
-  /// `Choose an image`
+  /// `选择图片文件`
   String get chooseImage {
-    return Intl.message(
-      'Choose an image',
-      name: 'chooseImage',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('选择图片文件', name: 'chooseImage', desc: '', args: []);
   }
 
-  /// `Loading`
+  /// `正在加载`
   String get loading {
-    return Intl.message(
-      'Loading',
-      name: 'loading',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('正在加载', name: 'loading', desc: '', args: []);
   }
 
-  /// `Could not load the image`
+  /// `无法加载图片`
   String get imageLoadFailed {
-    return Intl.message(
-      'Could not load the image',
-      name: 'imageLoadFailed',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('无法加载图片', name: 'imageLoadFailed', desc: '', args: []);
   }
 
-  /// `Divider`
+  /// `分割线`
   String get divider {
-    return Intl.message(
-      'Divider',
-      name: 'divider',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('分割线', name: 'divider', desc: '', args: []);
   }
 
-  /// `Table`
+  /// `表格`
   String get table {
-    return Intl.message(
-      'Table',
-      name: 'table',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('表格', name: 'table', desc: '', args: []);
   }
 
-  /// `Add before`
+  /// `左侧插入列`
   String get colAddBefore {
-    return Intl.message(
-      'Add before',
-      name: 'colAddBefore',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('左侧插入列', name: 'colAddBefore', desc: '', args: []);
   }
 
-  /// `Add before`
+  /// `上方插入行`
   String get rowAddBefore {
-    return Intl.message(
-      'Add before',
-      name: 'rowAddBefore',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('上方插入行', name: 'rowAddBefore', desc: '', args: []);
   }
 
-  /// `Add after`
+  /// `右侧插入列`
   String get colAddAfter {
-    return Intl.message(
-      'Add after',
-      name: 'colAddAfter',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('右侧插入列', name: 'colAddAfter', desc: '', args: []);
   }
 
-  /// `Add after`
+  /// `下方插入行`
   String get rowAddAfter {
-    return Intl.message(
-      'Add after',
-      name: 'rowAddAfter',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('下方插入行', name: 'rowAddAfter', desc: '', args: []);
   }
 
-  /// `Remove`
+  /// `删除整列`
   String get colRemove {
-    return Intl.message(
-      'Remove',
-      name: 'colRemove',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('删除整列', name: 'colRemove', desc: '', args: []);
   }
 
-  /// `Remove`
+  /// `删除整行`
   String get rowRemove {
-    return Intl.message(
-      'Remove',
-      name: 'rowRemove',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('删除整行', name: 'rowRemove', desc: '', args: []);
   }
 
-  /// `Duplicate`
+  /// `复制整列`
   String get colDuplicate {
-    return Intl.message(
-      'Duplicate',
-      name: 'colDuplicate',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('复制整列', name: 'colDuplicate', desc: '', args: []);
   }
 
-  /// `Duplicate`
+  /// `复制整行`
   String get rowDuplicate {
-    return Intl.message(
-      'Duplicate',
-      name: 'rowDuplicate',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('复制整行', name: 'rowDuplicate', desc: '', args: []);
   }
 
-  /// `Clear Content`
+  /// `清空整列`
   String get colClear {
-    return Intl.message(
-      'Clear Content',
-      name: 'colClear',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('清空整列', name: 'colClear', desc: '', args: []);
   }
 
-  /// `Clear Content`
+  /// `清空整行`
   String get rowClear {
-    return Intl.message(
-      'Clear Content',
-      name: 'rowClear',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('清空整行', name: 'rowClear', desc: '', args: []);
   }
 
-  /// `Enter a / to insert a block, or start typing`
+  /// `列表项`
+  String get listItemPlaceholder {
+    return Intl.message('列表项', name: 'listItemPlaceholder', desc: '', args: []);
+  }
+
+  /// `待办事项`
+  String get toDoPlaceholder {
+    return Intl.message('待办事项', name: 'toDoPlaceholder', desc: '', args: []);
+  }
+
+  /// `单击 / 以插入内容，或开始输入`
   String get slashPlaceHolder {
     return Intl.message(
-      'Enter a / to insert a block, or start typing',
+      '单击 / 以插入内容，或开始输入',
       name: 'slashPlaceHolder',
       desc: '',
       args: [],
     );
   }
 
-  /// `Align Left`
+  /// `靠左对齐`
   String get textAlignLeft {
-    return Intl.message(
-      'Align Left',
-      name: 'textAlignLeft',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('靠左对齐', name: 'textAlignLeft', desc: '', args: []);
   }
 
-  /// `Align Center`
+  /// `居中对齐`
   String get textAlignCenter {
-    return Intl.message(
-      'Align Center',
-      name: 'textAlignCenter',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('居中对齐', name: 'textAlignCenter', desc: '', args: []);
   }
 
-  /// `Align Right`
+  /// `靠右对齐`
   String get textAlignRight {
-    return Intl.message(
-      'Align Right',
-      name: 'textAlignRight',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('靠右对齐', name: 'textAlignRight', desc: '', args: []);
   }
 
-  /// `Convert to link`
+  /// `转换为链接`
   String get cmdConvertToLink {
-    return Intl.message(
-      'Convert to link',
-      name: 'cmdConvertToLink',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('转换为链接', name: 'cmdConvertToLink', desc: '', args: []);
   }
 
-  /// `convert to paragraph`
+  /// `转换为段落`
   String get cmdConvertToParagraph {
     return Intl.message(
-      'convert to paragraph',
+      '转换为段落',
       name: 'cmdConvertToParagraph',
       desc: '',
       args: [],
     );
   }
 
-  /// `Copy selection`
+  /// `复制选中内容`
   String get cmdCopySelection {
-    return Intl.message(
-      'Copy selection',
-      name: 'cmdCopySelection',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('复制选中内容', name: 'cmdCopySelection', desc: '', args: []);
   }
 
-  /// `Cut selection`
+  /// `剪切选中内容`
   String get cmdCutSelection {
-    return Intl.message(
-      'Cut selection',
-      name: 'cmdCutSelection',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('剪切选中内容', name: 'cmdCutSelection', desc: '', args: []);
   }
 
-  /// `Delete character to the left`
+  /// `向左删除字符`
   String get cmdDeleteLeft {
-    return Intl.message(
-      'Delete character to the left',
-      name: 'cmdDeleteLeft',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('向左删除字符', name: 'cmdDeleteLeft', desc: '', args: []);
   }
 
-  /// `Delete to beginning of line`
+  /// `删除至行首`
   String get cmdDeleteLineLeft {
-    return Intl.message(
-      'Delete to beginning of line',
-      name: 'cmdDeleteLineLeft',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('删除至行首', name: 'cmdDeleteLineLeft', desc: '', args: []);
   }
 
-  /// `Delete character to the right`
+  /// `向右删除字符`
   String get cmdDeleteRight {
-    return Intl.message(
-      'Delete character to the right',
-      name: 'cmdDeleteRight',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('向右删除字符', name: 'cmdDeleteRight', desc: '', args: []);
   }
 
-  /// `delete word at left`
+  /// `向左删除词语`
   String get cmdDeleteWordLeft {
     return Intl.message(
-      'delete word at left',
+      '向左删除词语',
       name: 'cmdDeleteWordLeft',
       desc: '',
       args: [],
     );
   }
 
-  /// `delete word at right`
+  /// `向右删除词语`
   String get cmdDeleteWordRight {
     return Intl.message(
-      'delete word at right',
+      '向右删除词语',
       name: 'cmdDeleteWordRight',
       desc: '',
       args: [],
     );
   }
 
-  /// `exit editing mode`
+  /// `退出编辑模式`
   String get cmdExitEditing {
-    return Intl.message(
-      'exit editing mode',
-      name: 'cmdExitEditing',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('退出编辑模式', name: 'cmdExitEditing', desc: '', args: []);
   }
 
-  /// `indent`
+  /// `缩进`
   String get cmdIndent {
-    return Intl.message(
-      'indent',
-      name: 'cmdIndent',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('缩进', name: 'cmdIndent', desc: '', args: []);
   }
 
-  /// `move cursor to the bottom`
+  /// `移动光标到底部`
   String get cmdMoveCursorBottom {
     return Intl.message(
-      'move cursor to the bottom',
+      '移动光标到底部',
       name: 'cmdMoveCursorBottom',
       desc: '',
       args: [],
     );
   }
 
-  /// `Select all until end of file`
+  /// `选中到文档末尾`
   String get cmdMoveCursorBottomSelect {
     return Intl.message(
-      'Select all until end of file',
+      '选中到文档末尾',
       name: 'cmdMoveCursorBottomSelect',
       desc: '',
       args: [],
     );
   }
 
-  /// `move cursor down`
+  /// `向下移动光标`
   String get cmdMoveCursorDown {
     return Intl.message(
-      'move cursor down',
+      '向下移动光标',
       name: 'cmdMoveCursorDown',
       desc: '',
       args: [],
     );
   }
 
-  /// `Select downward`
+  /// `向下选中`
   String get cmdMoveCursorDownSelect {
     return Intl.message(
-      'Select downward',
+      '向下选中',
       name: 'cmdMoveCursorDownSelect',
       desc: '',
       args: [],
     );
   }
 
-  /// `move cursor left`
+  /// `向左移动光标`
   String get cmdMoveCursorLeft {
     return Intl.message(
-      'move cursor left',
+      '向左移动光标',
       name: 'cmdMoveCursorLeft',
       desc: '',
       args: [],
     );
   }
 
-  /// `Select left`
+  /// `向左选中`
   String get cmdMoveCursorLeftSelect {
     return Intl.message(
-      'Select left',
+      '向左选中',
       name: 'cmdMoveCursorLeftSelect',
       desc: '',
       args: [],
     );
   }
 
-  /// `move cursor to the end of line`
+  /// `移动光标到行尾`
   String get cmdMoveCursorLineEnd {
     return Intl.message(
-      'move cursor to the end of line',
+      '移动光标到行尾',
       name: 'cmdMoveCursorLineEnd',
       desc: '',
       args: [],
     );
   }
 
-  /// `Select to end of line`
+  /// `选中到行尾`
   String get cmdMoveCursorLineEndSelect {
     return Intl.message(
-      'Select to end of line',
+      '选中到行尾',
       name: 'cmdMoveCursorLineEndSelect',
       desc: '',
       args: [],
     );
   }
 
-  /// `move cursor to start of line`
+  /// `移动光标到行首`
   String get cmdMoveCursorLineStart {
     return Intl.message(
-      'move cursor to start of line',
+      '移动光标到行首',
       name: 'cmdMoveCursorLineStart',
       desc: '',
       args: [],
     );
   }
 
-  /// `Select to start of line`
+  /// `选中到行首`
   String get cmdMoveCursorLineStartSelect {
     return Intl.message(
-      'Select to start of line',
+      '选中到行首',
       name: 'cmdMoveCursorLineStartSelect',
       desc: '',
       args: [],
     );
   }
 
-  /// `move cursor right`
+  /// `向右移动光标`
   String get cmdMoveCursorRight {
     return Intl.message(
-      'move cursor right',
+      '向右移动光标',
       name: 'cmdMoveCursorRight',
       desc: '',
       args: [],
     );
   }
 
-  /// `Select right`
+  /// `向右选中`
   String get cmdMoveCursorRightSelect {
     return Intl.message(
-      'Select right',
+      '向右选中',
       name: 'cmdMoveCursorRightSelect',
       desc: '',
       args: [],
     );
   }
 
-  /// `move cursor to the top`
+  /// `移动光标到顶部`
   String get cmdMoveCursorTop {
     return Intl.message(
-      'move cursor to the top',
+      '移动光标到顶部',
       name: 'cmdMoveCursorTop',
       desc: '',
       args: [],
     );
   }
 
-  /// `Select all until start of file`
+  /// `选中到文档开头`
   String get cmdMoveCursorTopSelect {
     return Intl.message(
-      'Select all until start of file',
+      '选中到文档开头',
       name: 'cmdMoveCursorTopSelect',
       desc: '',
       args: [],
     );
   }
 
-  /// `move cursor up`
+  /// `向上移动光标`
   String get cmdMoveCursorUp {
-    return Intl.message(
-      'move cursor up',
-      name: 'cmdMoveCursorUp',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('向上移动光标', name: 'cmdMoveCursorUp', desc: '', args: []);
   }
 
-  /// `Select upward`
+  /// `向上选中`
   String get cmdMoveCursorUpSelect {
     return Intl.message(
-      'Select upward',
+      '向上选中',
       name: 'cmdMoveCursorUpSelect',
       desc: '',
       args: [],
     );
   }
 
-  /// `move cursor to word on the left`
+  /// `移动光标到左侧词语`
   String get cmdMoveCursorWordLeft {
     return Intl.message(
-      'move cursor to word on the left',
+      '移动光标到左侧词语',
       name: 'cmdMoveCursorWordLeft',
       desc: '',
       args: [],
     );
   }
 
-  /// `Select word to the left`
+  /// `选中左侧词语`
   String get cmdMoveCursorWordLeftSelect {
     return Intl.message(
-      'Select word to the left',
+      '选中左侧词语',
       name: 'cmdMoveCursorWordLeftSelect',
       desc: '',
       args: [],
     );
   }
 
-  /// `move cursor to word on the right`
+  /// `移动光标到右侧词语`
   String get cmdMoveCursorWordRight {
     return Intl.message(
-      'move cursor to word on the right',
+      '移动光标到右侧词语',
       name: 'cmdMoveCursorWordRight',
       desc: '',
       args: [],
     );
   }
 
-  /// `Select word to the right`
+  /// `选中右侧词语`
   String get cmdMoveCursorWordRightSelect {
     return Intl.message(
-      'Select word to the right',
+      '选中右侧词语',
       name: 'cmdMoveCursorWordRightSelect',
       desc: '',
       args: [],
     );
   }
 
-  /// `Open Find`
+  /// `打开查找`
   String get cmdOpenFind {
-    return Intl.message(
-      'Open Find',
-      name: 'cmdOpenFind',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('打开查找', name: 'cmdOpenFind', desc: '', args: []);
   }
 
-  /// `Open Find and Replace`
+  /// `打开查找替换`
   String get cmdOpenFindAndReplace {
     return Intl.message(
-      'Open Find and Replace',
+      '打开查找替换',
       name: 'cmdOpenFindAndReplace',
       desc: '',
       args: [],
     );
   }
 
-  /// `open link`
+  /// `打开链接`
   String get cmdOpenLink {
-    return Intl.message(
-      'open link',
-      name: 'cmdOpenLink',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('打开链接', name: 'cmdOpenLink', desc: '', args: []);
   }
 
-  /// `open links`
+  /// `打开所有链接`
   String get cmdOpenLinks {
-    return Intl.message(
-      'open links',
-      name: 'cmdOpenLinks',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('打开所有链接', name: 'cmdOpenLinks', desc: '', args: []);
   }
 
-  /// `outdent`
+  /// `取消缩进`
   String get cmdOutdent {
-    return Intl.message(
-      'outdent',
-      name: 'cmdOutdent',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('取消缩进', name: 'cmdOutdent', desc: '', args: []);
   }
 
-  /// `paste content`
+  /// `粘贴内容`
   String get cmdPasteContent {
-    return Intl.message(
-      'paste content',
-      name: 'cmdPasteContent',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('粘贴内容', name: 'cmdPasteContent', desc: '', args: []);
   }
 
-  /// `paste content as plain text`
+  /// `以纯文本粘贴`
   String get cmdPasteContentAsPlainText {
     return Intl.message(
-      'paste content as plain text',
+      '以纯文本粘贴',
       name: 'cmdPasteContentAsPlainText',
       desc: '',
       args: [],
     );
   }
 
-  /// `redo`
+  /// `重做`
   String get cmdRedo {
-    return Intl.message(
-      'redo',
-      name: 'cmdRedo',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('重做', name: 'cmdRedo', desc: '', args: []);
   }
 
-  /// `scroll page down`
+  /// `向下翻页`
   String get cmdScrollPageDown {
-    return Intl.message(
-      'scroll page down',
-      name: 'cmdScrollPageDown',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('向下翻页', name: 'cmdScrollPageDown', desc: '', args: []);
   }
 
-  /// `scroll page up`
+  /// `向上翻页`
   String get cmdScrollPageUp {
-    return Intl.message(
-      'scroll page up',
-      name: 'cmdScrollPageUp',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('向上翻页', name: 'cmdScrollPageUp', desc: '', args: []);
   }
 
-  /// `scroll to bottom`
+  /// `滚动到底部`
   String get cmdScrollToBottom {
-    return Intl.message(
-      'scroll to bottom',
-      name: 'cmdScrollToBottom',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('滚动到底部', name: 'cmdScrollToBottom', desc: '', args: []);
   }
 
-  /// `scroll to top`
+  /// `滚动到顶部`
   String get cmdScrollToTop {
-    return Intl.message(
-      'scroll to top',
-      name: 'cmdScrollToTop',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('滚动到顶部', name: 'cmdScrollToTop', desc: '', args: []);
   }
 
-  /// `select all`
+  /// `全选`
   String get cmdSelectAll {
-    return Intl.message(
-      'select all',
-      name: 'cmdSelectAll',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('全选', name: 'cmdSelectAll', desc: '', args: []);
   }
 
-  /// `Table: add line break`
+  /// `表格：插入换行`
   String get cmdTableLineBreak {
     return Intl.message(
-      'Table: add line break',
+      '表格：插入换行',
       name: 'cmdTableLineBreak',
       desc: '',
       args: [],
     );
   }
 
-  /// `Move to down cell at same offset`
+  /// `移动到下方单元格`
   String get cmdTableMoveToDownCellAtSameOffset {
     return Intl.message(
-      'Move to down cell at same offset',
+      '移动到下方单元格',
       name: 'cmdTableMoveToDownCellAtSameOffset',
       desc: '',
       args: [],
     );
   }
 
-  /// `Move to left cell if its at start of current cell`
+  /// `移动到左侧单元格`
   String get cmdTableMoveToLeftCellIfItsAtStartOfCurrentCell {
     return Intl.message(
-      'Move to left cell if its at start of current cell',
+      '移动到左侧单元格',
       name: 'cmdTableMoveToLeftCellIfItsAtStartOfCurrentCell',
       desc: '',
       args: [],
     );
   }
 
-  /// `Move to right cell if its at the end of current cell`
+  /// `移动到右侧单元格`
   String get cmdTableMoveToRightCellIfItsAtTheEndOfCurrentCell {
     return Intl.message(
-      'Move to right cell if its at the end of current cell',
+      '移动到右侧单元格',
       name: 'cmdTableMoveToRightCellIfItsAtTheEndOfCurrentCell',
       desc: '',
       args: [],
     );
   }
 
-  /// `Move to up cell at same offset`
+  /// `移动到上方单元格`
   String get cmdTableMoveToUpCellAtSameOffset {
     return Intl.message(
-      'Move to up cell at same offset',
+      '移动到上方单元格',
       name: 'cmdTableMoveToUpCellAtSameOffset',
       desc: '',
       args: [],
     );
   }
 
-  /// `Navigate around the cells at same offset`
+  /// `在单元格间导航`
   String get cmdTableNavigateCells {
     return Intl.message(
-      'Navigate around the cells at same offset',
+      '在单元格间导航',
       name: 'cmdTableNavigateCells',
       desc: '',
       args: [],
     );
   }
 
-  /// `Navigate around the cells at same offset in reverse`
+  /// `在单元格间反向导航`
   String get cmdTableNavigateCellsReverse {
     return Intl.message(
-      'Navigate around the cells at same offset in reverse',
+      '在单元格间反向导航',
       name: 'cmdTableNavigateCellsReverse',
       desc: '',
       args: [],
     );
   }
 
-  /// `Stop at the beginning of the cell`
+  /// `停在单元格开头`
   String get cmdTableStopAtTheBeginningOfTheCell {
     return Intl.message(
-      'Stop at the beginning of the cell',
+      '停在单元格开头',
       name: 'cmdTableStopAtTheBeginningOfTheCell',
       desc: '',
       args: [],
     );
   }
 
-  /// `toggle bold`
+  /// `切换粗体`
   String get cmdToggleBold {
-    return Intl.message(
-      'toggle bold',
-      name: 'cmdToggleBold',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('切换粗体', name: 'cmdToggleBold', desc: '', args: []);
   }
 
-  /// `toggle code`
+  /// `切换代码`
   String get cmdToggleCode {
-    return Intl.message(
-      'toggle code',
-      name: 'cmdToggleCode',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('切换代码', name: 'cmdToggleCode', desc: '', args: []);
   }
 
-  /// `toggle highlight`
+  /// `切换高亮`
   String get cmdToggleHighlight {
-    return Intl.message(
-      'toggle highlight',
-      name: 'cmdToggleHighlight',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('切换高亮', name: 'cmdToggleHighlight', desc: '', args: []);
   }
 
-  /// `toggle italic`
+  /// `切换斜体`
   String get cmdToggleItalic {
-    return Intl.message(
-      'toggle italic',
-      name: 'cmdToggleItalic',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('切换斜体', name: 'cmdToggleItalic', desc: '', args: []);
   }
 
-  /// `toggle strikethrough`
+  /// `切换删除线`
   String get cmdToggleStrikethrough {
     return Intl.message(
-      'toggle strikethrough',
+      '切换删除线',
       name: 'cmdToggleStrikethrough',
       desc: '',
       args: [],
     );
   }
 
-  /// `toggle the todo list`
+  /// `切换待办列表`
   String get cmdToggleTodoList {
     return Intl.message(
-      'toggle the todo list',
+      '切换待办列表',
       name: 'cmdToggleTodoList',
       desc: '',
       args: [],
     );
   }
 
-  /// `toggle underline`
+  /// `切换下划线`
   String get cmdToggleUnderline {
     return Intl.message(
-      'toggle underline',
+      '切换下划线',
       name: 'cmdToggleUnderline',
       desc: '',
       args: [],
     );
   }
 
-  /// `undo`
+  /// `撤销`
   String get cmdUndo {
-    return Intl.message(
-      'undo',
-      name: 'cmdUndo',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('撤销', name: 'cmdUndo', desc: '', args: []);
   }
 
-  /// `toggle H1`
+  /// `切换一级标题`
   String get cmdToggleH1 {
-    return Intl.message(
-      'toggle into Heading 1',
-      name: 'cmdToggleH1',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('切换一级标题', name: 'cmdToggleH1', desc: '', args: []);
   }
 
-  /// `toggle H2`
+  /// `切换二级标题`
   String get cmdToggleH2 {
-    return Intl.message(
-      'toggle into Heading 2',
-      name: 'cmdToggleH2',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('切换二级标题', name: 'cmdToggleH2', desc: '', args: []);
   }
 
-  /// `toggle H3`
+  /// `切换三级标题`
   String get cmdToggleH3 {
-    return Intl.message(
-      'toggle into Heading 3',
-      name: 'cmdToggleH3',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('切换三级标题', name: 'cmdToggleH3', desc: '', args: []);
   }
 
-  /// `toggle body`
+  /// `切换正文`
   String get cmdToggleBody {
-    return Intl.message(
-      'toggle body',
-      name: 'cmdToggleBody',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('切换正文', name: 'cmdToggleBody', desc: '', args: []);
   }
 }
 
@@ -1888,12 +1220,13 @@ class AppLocalizationDelegate
 
   List<Locale> get supportedLocales {
     return const <Locale>[
-      Locale.fromSubtags(languageCode: 'en'),
+      Locale.fromSubtags(languageCode: 'zh'),
       Locale.fromSubtags(languageCode: 'bn', countryCode: 'BN'),
       Locale.fromSubtags(languageCode: 'ca'),
       Locale.fromSubtags(languageCode: 'cs', countryCode: 'CZ'),
       Locale.fromSubtags(languageCode: 'da'),
       Locale.fromSubtags(languageCode: 'de', countryCode: 'DE'),
+      Locale.fromSubtags(languageCode: 'en'),
       Locale.fromSubtags(languageCode: 'es', countryCode: 'VE'),
       Locale.fromSubtags(languageCode: 'fr', countryCode: 'CA'),
       Locale.fromSubtags(languageCode: 'fr', countryCode: 'FR'),
@@ -1909,7 +1242,6 @@ class AppLocalizationDelegate
       Locale.fromSubtags(languageCode: 'pt', countryCode: 'PT'),
       Locale.fromSubtags(languageCode: 'ru', countryCode: 'RU'),
       Locale.fromSubtags(languageCode: 'tr', countryCode: 'TR'),
-      Locale.fromSubtags(languageCode: 'zh', countryCode: 'CN'),
       Locale.fromSubtags(languageCode: 'zh', countryCode: 'TW'),
     ];
   }

@@ -73,6 +73,16 @@ MaterialApp(
 );
 ```
 
+### 生成国际化文件
+
+修改 `lib/l10n/*.arb` 翻译文件后，在 `packages/appflowy-editor` 目录下执行：
+
+```bash
+dart run intl_utils:generate
+```
+
+基准语言为中文（`main_locale: zh`），配置详见 `pubspec.yaml` 中的 `flutter_intl` 部分。
+
 ## HarmonyOS 内置浏览器配置
 
 在 HarmonyOS 平台上点击链接时，会使用应用内置浏览器打开。需要在 ohos 项目中配置：

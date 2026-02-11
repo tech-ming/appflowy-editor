@@ -42,8 +42,20 @@ final Map<String, BlockComponentBuilder> standardBlockComponentBuilderMap = {
   ),
   HeadingBlockKeys.type: HeadingBlockComponentBuilder(
     configuration: standardBlockComponentConfiguration.copyWith(
-      placeholderText: (node) =>
-          'Heading ${node.attributes[HeadingBlockKeys.level]}',
+      // 根据标题级别获取对应的本地化占位文本
+      placeholderText: (node) {
+        final level = node.attributes[HeadingBlockKeys.level] as int? ?? 1;
+        switch (level) {
+          case 1:
+            return AppFlowyEditorL10n.current.heading1;
+          case 2:
+            return AppFlowyEditorL10n.current.heading2;
+          case 3:
+            return AppFlowyEditorL10n.current.heading3;
+          default:
+            return AppFlowyEditorL10n.current.heading1;
+        }
+      },
     ),
   ),
   ImageBlockKeys.type: ImageBlockComponentBuilder(),

@@ -36,11 +36,11 @@ class _TextColorOptionsWidgetsState extends State<TextColorOptionsWidgets> {
     return Scrollbar(
       child: GridView(
         shrinkWrap: true,
+        padding: EdgeInsets.zero,
         gridDelegate: buildMobileToolbarMenuGridDelegate(
           mobileToolbarStyle: style,
           crossAxisCount: 3,
         ),
-        padding: EdgeInsets.all(style.buttonSpacing),
         children: [
           ClearColorButton(
             onPressed: () {

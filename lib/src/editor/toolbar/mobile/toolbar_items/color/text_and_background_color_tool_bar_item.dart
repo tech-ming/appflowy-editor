@@ -49,50 +49,58 @@ class _TextAndBackgroundColorMenuState
   @override
   Widget build(BuildContext context) {
     final style = MobileToolbarTheme.of(context);
-    List<Tab> myTabs = <Tab>[
-      Tab(
-        text: AppFlowyEditorL10n.current.textColor,
-      ),
+    final tabs = <Tab>[
+      Tab(text: AppFlowyEditorL10n.current.textColor),
       Tab(text: AppFlowyEditorL10n.current.backgroundColor),
     ];
 
+    // 计算内容区高度：3 行按钮 + 2 个行间距
+    final contentHeight = 3 * style.buttonHeight + 2 * style.buttonSpacing;
+
     return DefaultTabController(
-      length: myTabs.length,
-      child: Column(
-        children: [
-          SizedBox(
-            height: style.buttonHeight,
-            child: TabBar(
-              indicatorSize: TabBarIndicatorSize.tab,
-              tabs: myTabs,
-              labelColor: style.tabBarSelectedBackgroundColor,
-              indicator: BoxDecoration(
-                borderRadius: BorderRadius.circular(style.borderRadius),
-                color: style.tabBarSelectedForegroundColor,
+      length: tabs.length,
+      child: SizedBox(
+        // 总高度 = TabBar 高度 + 间距 + 内容高度
+        height: style.buttonHeight + style.buttonSpacing + contentHeight,
+        child: Column(
+          children: [
+            // TabBar
+            SizedBox(
+              height: style.buttonHeight,
+              child: TabBar(
+                indicatorSize: TabBarIndicatorSize.tab,
+                tabs: tabs,
+                labelColor: style.tabBarSelectedForegroundColor,
+                indicator: BoxDecoration(
+                  borderRadius: BorderRadius.circular(style.borderRadius),
+                  color: style.tabBarSelectedBackgroundColor,
+                ),
+                dividerColor: Colors.transparent,
               ),
-              // remove the bottom line of TabBar
-              dividerColor: Colors.transparent,
             ),
-          ),
-          SizedBox(
-            // 3 lines of buttons
-            height: 3 * style.buttonHeight + 4 * style.buttonSpacing,
-            child: TabBarView(
-              children: [
-                TextColorOptionsWidgets(
-                  widget.editorState,
-                  widget.selection,
-                  textColorOptions: widget.textColorOptions,
-                ),
-                BackgroundColorOptionsWidgets(
-                  widget.editorState,
-                  widget.selection,
-                  backgroundColorOptions: widget.backgroundColorOptions,
-                ),
-              ],
+
+            // 间距
+            SizedBox(height: style.buttonSpacing),
+
+            // 内容区
+            Expanded(
+              child: TabBarView(
+                children: [
+                  TextColorOptionsWidgets(
+                    widget.editorState,
+                    widget.selection,
+                    textColorOptions: widget.textColorOptions,
+                  ),
+                  BackgroundColorOptionsWidgets(
+                    widget.editorState,
+                    widget.selection,
+                    backgroundColorOptions: widget.backgroundColorOptions,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -346,9 +346,14 @@ class _MobileSelectionServiceWidgetState
       editorState.editorStyle.autoDismissCollapsedHandleDuration,
       () {
         if (isCollapsedHandleVisible) {
+          // 隐藏光标手柄时，保留 doNotAttachTextService 标记，
+          // 避免在工具栏菜单打开期间触发键盘重新弹出
           editorState.updateSelectionWithReason(
             editorState.selection,
             reason: SelectionUpdateReason.transaction,
+            extraInfo: {
+              selectionExtraInfoDoNotAttachTextService: true,
+            },
           );
         }
       },

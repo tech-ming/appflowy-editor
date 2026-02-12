@@ -2,8 +2,6 @@ import 'dart:math';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/editor/toolbar/mobile/utils/keyboard_height_observer.dart';
-import 'package:appflowy_editor/src/editor/util/platform_extension.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 const String selectionExtraInfoDisableMobileToolbarKey = 'disableMobileToolbar';
@@ -65,6 +63,11 @@ class _MobileToolbarV2State extends State<MobileToolbarV2> {
 
   final isKeyboardShow = ValueNotifier(false);
 
+  /// 菜单显示时需要模拟的键盘高度
+  /// 当菜单打开时，设为 cachedKeyboardHeight，
+  /// 关闭菜单恢复键盘后，由 _onKeyboardHeightChanged 清除
+  final simulatedKeyboardHeight = ValueNotifier<double>(0);
+
   @override
   void initState() {
     super.initState();
@@ -76,6 +79,7 @@ class _MobileToolbarV2State extends State<MobileToolbarV2> {
   @override
   void dispose() {
     isKeyboardShow.dispose();
+    simulatedKeyboardHeight.dispose();
     toolbarOverlay?.remove();
     toolbarOverlay?.dispose();
     toolbarOverlay = null;
@@ -86,26 +90,44 @@ class _MobileToolbarV2State extends State<MobileToolbarV2> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: widget.child,
-        ),
-        // add a bottom offset to make sure the toolbar is above the keyboard
-        ValueListenableBuilder(
-          valueListenable: isKeyboardShow,
-          builder: (context, isKeyboardShow, __) {
-            return SizedBox(
-              height: isKeyboardShow ? widget.toolbarHeight : 0,
-            );
-          },
-        ),
-      ],
+    return ValueListenableBuilder<double>(
+      valueListenable: simulatedKeyboardHeight,
+      builder: (context, simHeight, _) {
+        // 仅在菜单显示时（simHeight > 0）才需要占位补偿
+        // 键盘正常弹出时不需要额外 spacer，因为：
+        // 1. Scaffold 的 resizeToAvoidBottomInset 已经处理了键盘空间
+        // 2. 工具栏在 Overlay 中，不占 widget tree 空间
+        if (simHeight <= 0) {
+          return widget.child;
+        }
+
+        final viewInsetsBottom =
+            MediaQuery.of(context).viewInsets.bottom;
+
+        // 菜单显示时的占位补偿公式：
+        // spacer = toolbarHeight + (simHeight - viewInsets.bottom)
+        // 键盘关闭动画中 viewInsets.bottom 逐渐减小 → Scaffold body 逐渐变大
+        // → spacer 同步增大补偿 → 编辑器可见区域恒定，零闪烁
+        final spacerHeight = widget.toolbarHeight +
+            (simHeight - viewInsetsBottom).clamp(0.0, simHeight);
+
+        return Column(
+          children: [
+            Expanded(child: widget.child),
+            SizedBox(height: spacerHeight),
+          ],
+        );
+      },
     );
   }
 
   void _onKeyboardHeightChanged(double height) {
     isKeyboardShow.value = height > 0;
+
+    // 键盘恢复后，清除模拟高度（键盘已经接管了空间占位）
+    if (height > 0 && simulatedKeyboardHeight.value > 0) {
+      simulatedKeyboardHeight.value = 0;
+    }
   }
 
   void _removeKeyboardToolbar() {
@@ -150,6 +172,7 @@ class _MobileToolbarV2State extends State<MobileToolbarV2> {
             child: _MobileToolbar(
               editorState: widget.editorState,
               toolbarItems: widget.toolbarItems,
+              simulatedKeyboardHeight: simulatedKeyboardHeight,
             ),
           ),
         );
@@ -185,10 +208,15 @@ class _MobileToolbar extends StatefulWidget {
   const _MobileToolbar({
     required this.editorState,
     required this.toolbarItems,
+    required this.simulatedKeyboardHeight,
   });
 
   final EditorState editorState;
   final List<MobileToolbarItem> toolbarItems;
+
+  /// 父组件的模拟键盘高度通知器，
+  /// 菜单打开时设为缓存的键盘高度，让父组件计算占位符补偿
+  final ValueNotifier<double> simulatedKeyboardHeight;
 
   @override
   State<_MobileToolbar> createState() => _MobileToolbarState();
@@ -226,7 +254,13 @@ class _MobileToolbarState extends State<_MobileToolbar>
 
     if (currentSelection != widget.editorState.selection) {
       currentSelection = widget.editorState.selection;
-      closeItemMenu();
+      // 仅在菜单未显示时才关闭菜单和清除模拟高度
+      // 如果菜单正在显示，selection 变化（如长按选中新文本）不应改变布局，
+      // 否则 spacer 突然清零会导致编辑器区域突变、内容滚动跳动
+      if (!showMenuNotifier.value) {
+        closeItemMenu();
+        widget.simulatedKeyboardHeight.value = 0;
+      }
     }
   }
 
@@ -264,10 +298,22 @@ class _MobileToolbarState extends State<_MobileToolbar>
   @override
   void closeItemMenu() {
     showMenuNotifier.value = false;
+    // 注意：不在此处清除 simulatedKeyboardHeight
+    // 当键盘恢复显示后，父组件的 _onKeyboardHeightChanged 会自动清除
+    // 这样在键盘关闭→菜单打开→菜单关闭→键盘恢复 的过渡期间，
+    // 占位符高度公式能持续补偿，避免闪烁
   }
 
   void showItemMenu() {
     showMenuNotifier.value = true;
+    // 延迟一帧再设置模拟高度：
+    // 确保 _closeKeyboard() 先执行、键盘关闭动画已启动后，
+    // 再通知父组件开始补偿占位，避免「键盘还在 + spacer 也在」导致的双重压缩闪烁
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (showMenuNotifier.value) {
+        widget.simulatedKeyboardHeight.value = cachedKeyboardHeight.value;
+      }
+    });
   }
 
   void _onKeyboardHeightChanged(double height) {
@@ -277,6 +323,12 @@ class _MobileToolbarState extends State<_MobileToolbar>
         !showMenuNotifier.value &&
         height == 0) {
       widget.editorState.selection = null;
+    }
+
+    // 键盘重新弹出时（如用户点击了编辑器其他位置），关闭菜单
+    if (height > 0 && showMenuNotifier.value) {
+      closeItemMenu();
+      canUpdateCachedKeyboardHeight = true;
     }
 
     if (canUpdateCachedKeyboardHeight) {
@@ -343,8 +395,11 @@ class _MobileToolbarState extends State<_MobileToolbar>
                   canUpdateCachedKeyboardHeight = false;
                   selectedMenuIndex = index;
                   closeKeyboardInitiative = true;
-                  showItemMenu();
+                  // 先关闭键盘，再显示菜单
+                  // 这样 showItemMenu 中延迟一帧设置 simulatedKeyboardHeight 时，
+                  // 键盘关闭动画已经启动，公式补偿才正确
                   _closeKeyboard();
+                  showItemMenu();
                 }
               },
             ),

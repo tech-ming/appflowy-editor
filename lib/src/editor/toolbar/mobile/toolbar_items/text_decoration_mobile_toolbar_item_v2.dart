@@ -66,14 +66,29 @@ class _TextDecorationMenuState extends State<_TextDecorationMenu> {
     final style = MobileToolbarTheme.of(context);
 
     final bius = textDecorations.map((currentDecoration) {
-      // Check current decoration is active or not
+      // 检测当前装饰是否激活
       final selection = widget.selection;
       final nodes = widget.editorState.getNodesInSelection(selection);
       final bool isSelected;
       if (selection.isCollapsed) {
-        isSelected = widget.editorState.toggledStyle.containsKey(
+        // 折叠选区：优先使用 toggledStyle（用户手动切换的状态），
+        // 如果 toggledStyle 中没有记录，则从 sliceAttributes 推导，
+        // 与实际输入时的属性继承逻辑保持一致
+        if (widget.editorState.toggledStyle.containsKey(
           currentDecoration.name,
-        );
+        )) {
+          isSelected = widget.editorState.toggledStyle[currentDecoration.name] == true;
+        } else {
+          // 使用 delta.sliceAttributes 判断，与 insertText 逻辑完全一致
+          final node = nodes.firstOrNull;
+          final delta = node?.delta;
+          if (delta != null) {
+            final sliced = delta.sliceAttributes(selection.startIndex);
+            isSelected = sliced?[currentDecoration.name] == true;
+          } else {
+            isSelected = false;
+          }
+        }
       } else {
         isSelected = nodes.allSatisfyInSelection(selection, (delta) {
           return delta.everyAttributes(

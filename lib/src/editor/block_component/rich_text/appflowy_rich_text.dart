@@ -423,7 +423,10 @@ class _AppFlowyRichTextState extends State<AppFlowyRichText>
     }
     textSpan = adjustTextSpan(textSpan);
 
-    return RichText(
+    // 收集 code 属性的文本范围，用于绘制圆角背景
+    final codeRanges = _collectCodeRanges(textInserts);
+
+    final richText = RichText(
       key: textKey,
       textAlign: widget.textAlign ?? TextAlign.start,
       textHeightBehavior: TextHeightBehavior(
@@ -438,6 +441,54 @@ class _AppFlowyRichTextState extends State<AppFlowyRichText>
       textScaler:
           TextScaler.linear(widget.editorState.editorStyle.textScaleFactor),
     );
+
+    // 如果没有 code 片段，直接返回 RichText
+    if (codeRanges.isEmpty) {
+      return richText;
+    }
+
+    // 从 InlineCodeTheme 获取装饰参数
+    final theme = textStyleConfiguration.inlineCodeTheme;
+    if (theme == null ||
+        (theme.backgroundColor == null && theme.borderColor == null)) {
+      return richText;
+    }
+
+    return CustomPaint(
+      painter: _InlineCodeBackgroundPainter(
+        renderParagraphGetter: () => _renderParagraph,
+        codeRanges: codeRanges,
+        backgroundColor: theme.backgroundColor ?? const Color(0x00000000),
+        borderColor: theme.borderColor,
+        borderWidth: theme.borderWidth,
+        borderRadius: theme.borderRadius,
+        horizontalPadding: theme.horizontalPadding,
+        verticalPadding: theme.verticalPadding,
+      ),
+      child: richText,
+    );
+  }
+
+  /// 收集所有 code 属性的文本范围，相邻的 code 段合并为一个连续范围
+  List<TextRange> _collectCodeRanges(Iterable<TextInsert> textInserts) {
+    final ranges = <TextRange>[];
+    int offset = 0;
+    for (final textInsert in textInserts) {
+      if (textInsert.attributes?.code == true) {
+        final newEnd = offset + textInsert.text.length;
+        // 如果与上一个 range 相邻，合并
+        if (ranges.isNotEmpty && ranges.last.end == offset) {
+          ranges[ranges.length - 1] = TextRange(
+            start: ranges.last.start,
+            end: newEnd,
+          );
+        } else {
+          ranges.add(TextRange(start: offset, end: newEnd));
+        }
+      }
+      offset += textInsert.text.length;
+    }
+    return ranges;
   }
 
   List<Widget> _buildRichTextOverlay(BuildContext context) {
@@ -588,7 +639,12 @@ class _AppFlowyRichTextState extends State<AppFlowyRichText>
           textStyle = textStyle.combine(textStyleConfiguration.href);
         }
         if (attributes.code == true) {
-          textStyle = textStyle.combine(textStyleConfiguration.code);
+          // 文字样式由 InlineCodeTheme.textStyle 控制，装饰由 painter 处理
+          final codeTextStyle =
+              textStyleConfiguration.inlineCodeTheme?.textStyle;
+          if (codeTextStyle != null) {
+            textStyle = textStyle.combine(codeTextStyle);
+          }
         }
         if (attributes.backgroundColor != null) {
           textStyle = textStyle.combine(
@@ -763,4 +819,162 @@ extension AppFlowyRichTextAttributes on Attributes {
   bool get autoComplete => this[AppFlowyRichTextKeys.autoComplete] == true;
 
   bool get transparent => this[AppFlowyRichTextKeys.transparent] == true;
+}
+
+/// 行内代码圆角背景绘制器
+///
+/// 通过 [CustomPainter] 在 RichText 文字下方绘制圆角矩形背景，
+/// 实现类似主流编辑器的行内代码视觉效果（圆角背景 + 水平/垂直内边距）。
+///
+/// 工作原理：
+/// 1. 从 [renderParagraphGetter] 获取 RenderParagraph 实例
+/// 2. 对每个 code 文本范围调用 [getBoxesForSelection] 获取文本矩形
+/// 3. 在每个矩形基础上扩展 padding 并绘制圆角矩形
+class _InlineCodeBackgroundPainter extends CustomPainter {
+  _InlineCodeBackgroundPainter({
+    required this.renderParagraphGetter,
+    required this.codeRanges,
+    required this.backgroundColor,
+    this.borderRadius = 4.0,
+    this.horizontalPadding = 4.0,
+    this.verticalPadding = 2.0,
+    this.borderColor,
+    this.borderWidth = 0.5,
+  });
+
+  /// 获取 RenderParagraph 的回调（延迟获取，因为首次绘制时可能还未 layout）
+  final RenderParagraph? Function() renderParagraphGetter;
+
+  /// 所有行内代码的文本范围
+  final List<TextRange> codeRanges;
+
+  /// 圆角背景颜色
+  final Color backgroundColor;
+
+  /// 圆角半径
+  final double borderRadius;
+
+  /// 水平内边距（左右各扩展）
+  final double horizontalPadding;
+
+  /// 垂直内边距（上下各扩展）
+  final double verticalPadding;
+
+  /// 边框颜色（为 null 则不绘制边框）
+  final Color? borderColor;
+
+  /// 边框宽度
+  final double borderWidth;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final renderParagraph = renderParagraphGetter();
+    if (renderParagraph == null || !renderParagraph.hasSize) {
+      return;
+    }
+
+    final fillPaint = Paint()
+      ..color = backgroundColor
+      ..style = PaintingStyle.fill;
+
+    final strokePaint = borderColor != null
+        ? (Paint()
+          ..color = borderColor!
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = borderWidth)
+        : null;
+
+    for (final range in codeRanges) {
+      final textSelection = TextSelection(
+        baseOffset: range.start,
+        extentOffset: range.end,
+      );
+
+      // 获取该文本范围对应的所有矩形（不同样式段会产生多个 box）
+      final boxes = renderParagraph.getBoxesForSelection(
+        textSelection,
+        boxHeightStyle: BoxHeightStyle.max,
+      );
+
+      if (boxes.isEmpty) continue;
+
+      // 先统一同一行所有 box 的垂直范围，消除中英文混排的高低差
+      // 按行分组（top 相近的归为同一行），每行取统一的 top/bottom
+      final lineGroups = <List<TextBox>>[];
+      List<TextBox> currentLine = [boxes.first];
+
+      for (int i = 1; i < boxes.length; i++) {
+        if ((boxes[i].top - currentLine.first.top).abs() < 2.0) {
+          currentLine.add(boxes[i]);
+        } else {
+          lineGroups.add(currentLine);
+          currentLine = [boxes[i]];
+        }
+      }
+      lineGroups.add(currentLine);
+
+      for (final lineBoxes in lineGroups) {
+        // 统一该行的垂直范围
+        double lineTop = lineBoxes.first.top;
+        double lineBottom = lineBoxes.first.bottom;
+        for (final box in lineBoxes) {
+          lineTop = min(lineTop, box.top);
+          lineBottom = max(lineBottom, box.bottom);
+        }
+
+        // 合并该行内水平相邻的 box
+        final mergedRects = <Rect>[];
+        Rect current = Rect.fromLTRB(
+          lineBoxes.first.left, lineTop, lineBoxes.first.right, lineBottom,
+        );
+
+        for (int i = 1; i < lineBoxes.length; i++) {
+          final box = lineBoxes[i];
+          if (box.left <= current.right + 1.0) {
+            current = Rect.fromLTRB(
+              current.left, lineTop, max(current.right, box.right), lineBottom,
+            );
+          } else {
+            mergedRects.add(current);
+            current = Rect.fromLTRB(box.left, lineTop, box.right, lineBottom);
+          }
+        }
+        mergedRects.add(current);
+
+        for (final rect in mergedRects) {
+          // 在文本矩形基础上扩展 padding
+          final paddedRect = Rect.fromLTRB(
+            rect.left - horizontalPadding,
+            rect.top - verticalPadding,
+            rect.right + horizontalPadding,
+            rect.bottom + verticalPadding,
+          );
+
+          final rrect = RRect.fromRectAndRadius(
+            paddedRect,
+            Radius.circular(borderRadius),
+          );
+
+          // 绘制圆角矩形背景
+          canvas.drawRRect(rrect, fillPaint);
+
+          // 绘制边框
+          if (strokePaint != null) {
+            canvas.drawRRect(rrect, strokePaint);
+          }
+        }
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _InlineCodeBackgroundPainter oldDelegate) {
+    return oldDelegate.codeRanges != codeRanges ||
+        oldDelegate.backgroundColor != backgroundColor ||
+        oldDelegate.borderRadius != borderRadius ||
+        oldDelegate.horizontalPadding != horizontalPadding ||
+        oldDelegate.verticalPadding != verticalPadding ||
+        oldDelegate.borderColor != borderColor ||
+        oldDelegate.borderWidth != borderWidth;
+  }
 }

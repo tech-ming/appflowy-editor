@@ -6,7 +6,7 @@
   "@bulletedList": {},
   "checkbox": "复选框",
   "@checkbox": {},
-  "embedCode": "代码块",
+  "embedCode": "行内代码",
   "@embedCode": {},
   "heading1": "一级标题",
   "@heading1": {},

@@ -140,7 +140,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "divider": MessageLookupByLibrary.simpleMessage("分割线"),
     "done": MessageLookupByLibrary.simpleMessage("完成"),
     "editLink": MessageLookupByLibrary.simpleMessage("修改链接"),
-    "embedCode": MessageLookupByLibrary.simpleMessage("代码块"),
+    "embedCode": MessageLookupByLibrary.simpleMessage("行内代码"),
     "emptySearchBoxHint": MessageLookupByLibrary.simpleMessage("输入查找内容"),
     "find": MessageLookupByLibrary.simpleMessage("查找"),
     "fontColorBlue": MessageLookupByLibrary.simpleMessage("蓝色"),

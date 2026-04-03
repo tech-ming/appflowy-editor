@@ -73,9 +73,9 @@ class AppFlowyEditorLocalizations {
     return Intl.message('复选框', name: 'checkbox', desc: '', args: []);
   }
 
-  /// `代码块`
+  /// `行内代码`
   String get embedCode {
-    return Intl.message('代码块', name: 'embedCode', desc: '', args: []);
+    return Intl.message('行内代码', name: 'embedCode', desc: '', args: []);
   }
 
   /// `一级标题`

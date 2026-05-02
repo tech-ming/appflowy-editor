@@ -90,34 +90,36 @@ class _MobileToolbarV2State extends State<MobileToolbarV2> {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<double>(
-      valueListenable: simulatedKeyboardHeight,
-      builder: (context, simHeight, _) {
-        // 仅在菜单显示时（simHeight > 0）才需要占位补偿
-        // 键盘正常弹出时不需要额外 spacer，因为：
-        // 1. Scaffold 的 resizeToAvoidBottomInset 已经处理了键盘空间
-        // 2. 工具栏在 Overlay 中，不占 widget tree 空间
-        if (simHeight <= 0) {
-          return widget.child;
-        }
+    // 注意：必须保持 widget tree 结构稳定（始终返回相同的 Column）。
+    // 如果根据 simHeight 切换返回 widget.child / Column 两种结构，
+    // Flutter 的 Element diff 会因 runtimeType 不一致而销毁 child 子树并重建，
+    // 导致 AppFlowyEditor 内部的 EditorScrollController/SelectionService 全部重置：
+    // 表现为「点击菜单时，菜单被关闭、光标退回到文章开头」。
+    return Column(
+      children: [
+        Expanded(child: widget.child),
+        ValueListenableBuilder<double>(
+          valueListenable: simulatedKeyboardHeight,
+          builder: (context, simHeight, _) {
+            // simHeight <= 0：键盘正常弹出 / 全部收起
+            // - Scaffold 的 resizeToAvoidBottomInset 已处理键盘空间
+            // - 工具栏在 Overlay 中，不占 widget tree 空间
+            // 此时 spacer 高度为 0，等同于无占位
+            if (simHeight <= 0) {
+              return const SizedBox.shrink();
+            }
 
-        final viewInsetsBottom =
-            MediaQuery.of(context).viewInsets.bottom;
-
-        // 菜单显示时的占位补偿公式：
-        // spacer = toolbarHeight + (simHeight - viewInsets.bottom)
-        // 键盘关闭动画中 viewInsets.bottom 逐渐减小 → Scaffold body 逐渐变大
-        // → spacer 同步增大补偿 → 编辑器可见区域恒定，零闪烁
-        final spacerHeight = widget.toolbarHeight +
-            (simHeight - viewInsetsBottom).clamp(0.0, simHeight);
-
-        return Column(
-          children: [
-            Expanded(child: widget.child),
-            SizedBox(height: spacerHeight),
-          ],
-        );
-      },
+            // simHeight > 0：菜单显示时的占位补偿公式：
+            // spacer = toolbarHeight + (simHeight - viewInsets.bottom)
+            // 键盘关闭动画中 viewInsets.bottom 逐渐减小 → Scaffold body 逐渐变大
+            // → spacer 同步增大补偿 → 编辑器可见区域恒定，零闪烁
+            final viewInsetsBottom = MediaQuery.of(context).viewInsets.bottom;
+            final spacerHeight = widget.toolbarHeight +
+                (simHeight - viewInsetsBottom).clamp(0.0, simHeight);
+            return SizedBox(height: spacerHeight);
+          },
+        ),
+      ],
     );
   }
 

@@ -35,10 +35,14 @@ class BlockComponentContainer extends StatelessWidget {
           Widget child = builder(context);
 
           // 非文本块（delta == null）自动包装选区能力
-          // 不传入 key，让 Flutter 自动管理 widget 生命周期
-          // node.key 是 GlobalKey，不能用作子 widget 的 key，否则会导致冲突
+          // 必须使用 node.key 作为 NonEditableBlockWrapper 的 key，
+          // 否则 node.selectable 会返回 null，导致点击非文本块两边
+          // 时无法通过 selectable.getPositionInOffset 定位光标
+          // (desktop_selection_service._onTapDown 会走清空分支)。
+          // 文本块自己已经将 node.key 传给内部 widget，因此不会冲突。
           if (node.delta == null) {
             child = NonEditableBlockWrapper(
+              key: node.key,
               node: node,
               child: child,
             );

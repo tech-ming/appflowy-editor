@@ -1,5 +1,4 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/editor/block_component/base_component/non_editable_block_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,7 +7,14 @@ import 'package:provider/provider.dart';
 /// 1. used to update the child widget when node is changed
 /// ~~2. used to show block component actions~~
 /// 3. used to add the layer link to the child widget
-/// 4. automatically wraps non-editable blocks (delta == null) with selection support
+///
+/// 注意：非文本块（delta == null）的选区能力由块组件自身实现，模式如下：
+/// - State 同时 with SelectableMixin 和 NonEditableBlockSelectionMixin
+/// - Builder 在创建 Component widget 时传入 key: node.key
+/// - State 内自带一个 _contentKey，用 BlockSelectionContainer + KeyedSubtree(_contentKey)
+///   包裹真实内容
+/// 这样 node.key 只挂在组件自身一处，不会和上层 wrapper 重复使用导致
+/// "Multiple widgets used the same GlobalKey" 冲突（典型表现：光标闪烁后持续抛错）。
 class BlockComponentContainer extends StatelessWidget {
   const BlockComponentContainer({
     super.key,
@@ -31,26 +37,9 @@ class BlockComponentContainer extends StatelessWidget {
             'node is rebuilding...: type: ${node.type} ',
           );
 
-          // 构建原始子 widget
-          Widget child = builder(context);
-
-          // 非文本块（delta == null）自动包装选区能力
-          // 必须使用 node.key 作为 NonEditableBlockWrapper 的 key，
-          // 否则 node.selectable 会返回 null，导致点击非文本块两边
-          // 时无法通过 selectable.getPositionInOffset 定位光标
-          // (desktop_selection_service._onTapDown 会走清空分支)。
-          // 文本块自己已经将 node.key 传给内部 widget，因此不会冲突。
-          if (node.delta == null) {
-            child = NonEditableBlockWrapper(
-              key: node.key,
-              node: node,
-              child: child,
-            );
-          }
-
           return CompositedTransformTarget(
             link: node.layerLink,
-            child: child,
+            child: builder(context),
           );
         },
       ),

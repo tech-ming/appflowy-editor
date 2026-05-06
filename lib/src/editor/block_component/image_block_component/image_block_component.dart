@@ -70,7 +70,9 @@ class ImageBlockComponentBuilder extends BlockComponentBuilder {
     final node = blockComponentContext.node;
 
     return ImageBlockComponentWidget(
-      // 不使用 node.key，让 BlockComponentContainer 自动包装
+      // 直接使用 node.key：State 自身实现 SelectableMixin，
+      // 让 node.selectable 直接定位到本 State，避免上层 wrapper 重复使用 node.key
+      key: node.key,
       node: node,
       showActions: showActions(node),
       configuration: configuration,
@@ -115,7 +117,16 @@ class ImageBlockComponentWidget extends BlockComponentStatefulWidget {
 }
 
 class ImageBlockComponentWidgetState extends State<ImageBlockComponentWidget>
-    with BlockComponentConfigurable {
+    with
+        BlockComponentConfigurable,
+        SelectableMixin,
+        NonEditableBlockSelectionMixin {
+  /// 内容区域的 GlobalKey（供 NonEditableBlockSelectionMixin 取尺寸/位置）
+  final GlobalKey _contentKey = GlobalKey();
+
+  @override
+  GlobalKey get contentKey => _contentKey;
+
   @override
   BlockComponentConfiguration get configuration => widget.configuration;
 
@@ -202,7 +213,25 @@ class ImageBlockComponentWidgetState extends State<ImageBlockComponentWidget>
       );
     }
 
-    return child;
+    // 用 BlockSelectionContainer + KeyedSubtree(_contentKey) 包装，
+    // 让光标 / 块选区 / 文本选区能基于本节点正确显示
+    return BlockSelectionContainer(
+      node: node,
+      delegate: this,
+      listenable: editorState.selectionNotifier,
+      blockColor: editorState.editorStyle.selectionColor,
+      cursorColor: editorState.editorStyle.cursorColor,
+      selectionColor: editorState.editorStyle.selectionColor,
+      supportTypes: const [
+        BlockSelectionType.block,
+        BlockSelectionType.cursor,
+        BlockSelectionType.selection,
+      ],
+      child: KeyedSubtree(
+        key: _contentKey,
+        child: child,
+      ),
+    );
   }
 }
 

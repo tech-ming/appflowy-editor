@@ -261,7 +261,18 @@ class _MobileToolbarState extends State<_MobileToolbar>
       // 否则 spacer 突然清零会导致编辑器区域突变、内容滚动跳动
       if (!showMenuNotifier.value) {
         closeItemMenu();
-        widget.simulatedKeyboardHeight.value = 0;
+        // 延迟到下一帧再清除模拟高度：
+        // didUpdateWidget 在 build 阶段同步执行，此时直接修改 simulatedKeyboardHeight
+        // 会通知监听它的 ValueListenableBuilder，触发 markNeedsBuild during build，
+        // 抛 "setState() or markNeedsBuild() called during build"。
+        // （插入自定义块时由 transaction.afterSelection 引发的 selection 变化最易触发此问题）
+        if (widget.simulatedKeyboardHeight.value != 0) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              widget.simulatedKeyboardHeight.value = 0;
+            }
+          });
+        }
       }
     }
   }

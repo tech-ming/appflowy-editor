@@ -28,6 +28,113 @@ typedef AppFlowyTextSpanOverlayBuilder = List<Widget> Function(
   SelectableMixin delegate,
 );
 
+/// 一组行内文本范围的装饰规格
+///
+/// 存在的理由：行内视觉有两条互不相通的路径——一条走 TextSpan（textSpanDecorator
+/// 能改），一条走 CustomPaint 直接从 delta 收集范围（装饰器够不着）。凡是
+/// TextStyle 表达不了的效果（圆角、虚线、端点竖线、比文字略大的留白），或者
+/// 不该占用 TextStyle 属性的效果（占了就会覆盖用户自己的删除线/背景色），
+/// 都归这里画。
+///
+/// 行内代码的圆角背景是它的第一个使用者，应用层可通过
+/// [appflowyInlineRangeDecorationCollector] 追加自己的装饰。
+class InlineRangeDecoration {
+  const InlineRangeDecoration({
+    required this.ranges,
+    this.fillColor,
+    this.borderColor,
+    this.borderWidth = 0.5,
+    this.borderRadius = 3.0,
+    this.horizontalPadding = 1.0,
+    this.verticalPadding = 0.5,
+    this.underlineColor,
+    this.underlineThickness = 1.0,
+    this.underlineDotSpacing = 3.0,
+  });
+
+  /// 要装饰的文本范围（相对于所在 node 的 delta 偏移）
+  final List<TextRange> ranges;
+
+  /// 填充色（null 则不填充）
+  final Color? fillColor;
+
+  /// 边框色（null 则不描边）
+  final Color? borderColor;
+
+  /// 边框宽度
+  final double borderWidth;
+
+  /// 圆角半径
+  final double borderRadius;
+
+  /// 水平内边距（左右各扩展）
+  ///
+  /// 默认值与 [InlineCodeTheme] 保持一致，让不同来源的装饰在同一段文字上
+  /// 对齐——不一致的话，两种装饰叠在一起会明显错位一圈。
+  final double horizontalPadding;
+
+  /// 垂直内边距（上下各扩展）
+  final double verticalPadding;
+
+  /// 底部点线颜色（null 则不画）
+  ///
+  /// 由 painter 绘制而非 TextDecoration.underline，因此不占用文本格式属性，
+  /// 与作者自己的下划线 / 删除线互不干扰。
+  final Color? underlineColor;
+
+  /// 底部点线的点直径
+  final double underlineThickness;
+
+  /// 底部点线的点间距（圆心到圆心）
+  final double underlineDotSpacing;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is InlineRangeDecoration &&
+        listEquals(other.ranges, ranges) &&
+        other.fillColor == fillColor &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.borderRadius == borderRadius &&
+        other.horizontalPadding == horizontalPadding &&
+        other.verticalPadding == verticalPadding &&
+        other.underlineColor == underlineColor &&
+        other.underlineThickness == underlineThickness &&
+        other.underlineDotSpacing == underlineDotSpacing;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        Object.hashAll(ranges),
+        fillColor,
+        borderColor,
+        borderWidth,
+        borderRadius,
+        horizontalPadding,
+        verticalPadding,
+        underlineColor,
+        underlineThickness,
+        underlineDotSpacing,
+      );
+}
+
+/// 应用层追加行内范围装饰的收集器
+///
+/// 返回的装饰**画在行内代码之上**，因此可以覆盖它——遮挡类效果需要这一点：
+/// 行内代码的背景框绕过了 TextSpan，只靠装饰器是盖不住的。
+///
+/// 与 [appflowyEditorSliceAttributes] 同一个路子：包内留一个可变全局，
+/// 应用层在初始化时注入，无需 fork 本文件。
+typedef InlineRangeDecorationCollector = List<InlineRangeDecoration> Function(
+  BuildContext context,
+  Node node,
+  Iterable<TextInsert> textInserts,
+);
+
+/// 全局行内范围装饰收集器（默认为空）
+InlineRangeDecorationCollector? appflowyInlineRangeDecorationCollector;
+
 class AppFlowyRichText extends StatefulWidget {
   const AppFlowyRichText({
     super.key,
@@ -424,7 +531,7 @@ class _AppFlowyRichTextState extends State<AppFlowyRichText>
     textSpan = adjustTextSpan(textSpan);
 
     // 收集 code 属性的文本范围，用于绘制圆角背景
-    final codeRanges = _collectCodeRanges(textInserts);
+    final decorations = _collectInlineDecorations(context, textInserts);
 
     final richText = RichText(
       key: textKey,
@@ -442,31 +549,57 @@ class _AppFlowyRichTextState extends State<AppFlowyRichText>
           TextScaler.linear(widget.editorState.editorStyle.textScaleFactor),
     );
 
-    // 如果没有 code 片段，直接返回 RichText
-    if (codeRanges.isEmpty) {
-      return richText;
-    }
-
-    // 从 InlineCodeTheme 获取装饰参数
-    final theme = textStyleConfiguration.inlineCodeTheme;
-    if (theme == null ||
-        (theme.backgroundColor == null && theme.borderColor == null)) {
+    // 没有任何行内装饰，直接返回 RichText
+    if (decorations.isEmpty) {
       return richText;
     }
 
     return CustomPaint(
-      painter: _InlineCodeBackgroundPainter(
+      painter: _InlineRangeDecorationPainter(
         renderParagraphGetter: () => _renderParagraph,
-        codeRanges: codeRanges,
-        backgroundColor: theme.backgroundColor ?? const Color(0x00000000),
-        borderColor: theme.borderColor,
-        borderWidth: theme.borderWidth,
-        borderRadius: theme.borderRadius,
-        horizontalPadding: theme.horizontalPadding,
-        verticalPadding: theme.verticalPadding,
+        decorations: decorations,
       ),
       child: richText,
     );
+  }
+
+  /// 汇总本段落要绘制的所有行内范围装饰
+  ///
+  /// 顺序即绘制顺序：内置的行内代码在前，应用层追加的在后——后者因此可以
+  /// 盖住前者，遮挡类效果依赖这一点（行内代码的背景框绕过 TextSpan，
+  /// 光靠 textSpanDecorator 是盖不住的）。
+  List<InlineRangeDecoration> _collectInlineDecorations(
+    BuildContext context,
+    Iterable<TextInsert> textInserts,
+  ) {
+    final decorations = <InlineRangeDecoration>[];
+
+    // 内置：行内代码的圆角背景
+    final codeRanges = _collectCodeRanges(textInserts);
+    final theme = textStyleConfiguration.inlineCodeTheme;
+    if (codeRanges.isNotEmpty &&
+        theme != null &&
+        (theme.backgroundColor != null || theme.borderColor != null)) {
+      decorations.add(
+        InlineRangeDecoration(
+          ranges: codeRanges,
+          fillColor: theme.backgroundColor,
+          borderColor: theme.borderColor,
+          borderWidth: theme.borderWidth,
+          borderRadius: theme.borderRadius,
+          horizontalPadding: theme.horizontalPadding,
+          verticalPadding: theme.verticalPadding,
+        ),
+      );
+    }
+
+    // 应用层追加（私密段落等）
+    final collector = appflowyInlineRangeDecorationCollector;
+    if (collector != null) {
+      decorations.addAll(collector(context, widget.node, textInserts));
+    }
+
+    return decorations;
   }
 
   /// 收集所有 code 属性的文本范围，相邻的 code 段合并为一个连续范围
@@ -830,41 +963,21 @@ extension AppFlowyRichTextAttributes on Attributes {
 /// 1. 从 [renderParagraphGetter] 获取 RenderParagraph 实例
 /// 2. 对每个 code 文本范围调用 [getBoxesForSelection] 获取文本矩形
 /// 3. 在每个矩形基础上扩展 padding 并绘制圆角矩形
-class _InlineCodeBackgroundPainter extends CustomPainter {
-  _InlineCodeBackgroundPainter({
+/// 绘制若干组行内范围装饰
+///
+/// 几何部分（取选区 box → 按行归并 → 合并水平相邻 → 外扩 padding）对所有
+/// 装饰通用；每组只在填充、描边、端点竖线三项上有差别。
+class _InlineRangeDecorationPainter extends CustomPainter {
+  _InlineRangeDecorationPainter({
     required this.renderParagraphGetter,
-    required this.codeRanges,
-    required this.backgroundColor,
-    this.borderRadius = 4.0,
-    this.horizontalPadding = 4.0,
-    this.verticalPadding = 2.0,
-    this.borderColor,
-    this.borderWidth = 0.5,
+    required this.decorations,
   });
 
   /// 获取 RenderParagraph 的回调（延迟获取，因为首次绘制时可能还未 layout）
   final RenderParagraph? Function() renderParagraphGetter;
 
-  /// 所有行内代码的文本范围
-  final List<TextRange> codeRanges;
-
-  /// 圆角背景颜色
-  final Color backgroundColor;
-
-  /// 圆角半径
-  final double borderRadius;
-
-  /// 水平内边距（左右各扩展）
-  final double horizontalPadding;
-
-  /// 垂直内边距（上下各扩展）
-  final double verticalPadding;
-
-  /// 边框颜色（为 null 则不绘制边框）
-  final Color? borderColor;
-
-  /// 边框宽度
-  final double borderWidth;
+  /// 待绘制的装饰，按顺序绘制，后者覆盖前者
+  final List<InlineRangeDecoration> decorations;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -873,18 +986,40 @@ class _InlineCodeBackgroundPainter extends CustomPainter {
       return;
     }
 
-    final fillPaint = Paint()
-      ..color = backgroundColor
-      ..style = PaintingStyle.fill;
+    for (final decoration in decorations) {
+      _paintOne(canvas, renderParagraph, decoration);
+    }
+  }
 
-    final strokePaint = borderColor != null
+  void _paintOne(
+    Canvas canvas,
+    RenderParagraph renderParagraph,
+    InlineRangeDecoration decoration,
+  ) {
+    final fillPaint = decoration.fillColor != null
         ? (Paint()
-          ..color = borderColor!
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = borderWidth)
+          ..color = decoration.fillColor!
+          ..style = PaintingStyle.fill)
         : null;
 
-    for (final range in codeRanges) {
+    final strokePaint = decoration.borderColor != null
+        ? (Paint()
+          ..color = decoration.borderColor!
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = decoration.borderWidth)
+        : null;
+
+    final dotPaint = decoration.underlineColor != null
+        ? (Paint()
+          ..color = decoration.underlineColor!
+          ..style = PaintingStyle.fill)
+        : null;
+
+    if (fillPaint == null && strokePaint == null && dotPaint == null) {
+      return;
+    }
+
+    for (final range in decoration.ranges) {
       final textSelection = TextSelection(
         baseOffset: range.start,
         extentOffset: range.end,
@@ -944,23 +1079,45 @@ class _InlineCodeBackgroundPainter extends CustomPainter {
         for (final rect in mergedRects) {
           // 在文本矩形基础上扩展 padding
           final paddedRect = Rect.fromLTRB(
-            rect.left - horizontalPadding,
-            rect.top - verticalPadding,
-            rect.right + horizontalPadding,
-            rect.bottom + verticalPadding,
+            rect.left - decoration.horizontalPadding,
+            rect.top - decoration.verticalPadding,
+            rect.right + decoration.horizontalPadding,
+            rect.bottom + decoration.verticalPadding,
           );
 
           final rrect = RRect.fromRectAndRadius(
             paddedRect,
-            Radius.circular(borderRadius),
+            Radius.circular(decoration.borderRadius),
           );
 
           // 绘制圆角矩形背景
-          canvas.drawRRect(rrect, fillPaint);
+          if (fillPaint != null) {
+            canvas.drawRRect(rrect, fillPaint);
+          }
 
           // 绘制边框
           if (strokePaint != null) {
             canvas.drawRRect(rrect, strokePaint);
+          }
+
+          // 绘制底部点线
+          //
+          // 沿装饰区底边等距排一串小圆点。折行时每一行各画一条：一行就是一个
+          // 独立的视觉块，只在整段首尾画反而会让中间行看起来没有归属。
+          if (dotPaint != null) {
+            final radius = decoration.underlineThickness / 2;
+            final spacing = decoration.underlineDotSpacing;
+            final centerY = paddedRect.bottom - radius;
+            // 从左边缘留半个点的位置起画，避免首点被圆角切掉
+            var centerX = paddedRect.left + radius;
+            while (centerX <= paddedRect.right - radius) {
+              canvas.drawCircle(
+                Offset(centerX, centerY),
+                radius,
+                dotPaint,
+              );
+              centerX += spacing;
+            }
           }
         }
       }
@@ -968,13 +1125,7 @@ class _InlineCodeBackgroundPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _InlineCodeBackgroundPainter oldDelegate) {
-    return oldDelegate.codeRanges != codeRanges ||
-        oldDelegate.backgroundColor != backgroundColor ||
-        oldDelegate.borderRadius != borderRadius ||
-        oldDelegate.horizontalPadding != horizontalPadding ||
-        oldDelegate.verticalPadding != verticalPadding ||
-        oldDelegate.borderColor != borderColor ||
-        oldDelegate.borderWidth != borderWidth;
+  bool shouldRepaint(covariant _InlineRangeDecorationPainter oldDelegate) {
+    return !listEquals(oldDelegate.decorations, decorations);
   }
 }

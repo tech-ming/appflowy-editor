@@ -6,67 +6,79 @@ import 'package:flutter/services.dart';
 
 const standardBlockComponentConfiguration = BlockComponentConfiguration();
 
-final Map<String, BlockComponentBuilder> standardBlockComponentBuilderMap = {
-  PageBlockKeys.type: PageBlockComponentBuilder(),
-  ParagraphBlockKeys.type: ParagraphBlockComponentBuilder(
-    configuration: standardBlockComponentConfiguration.copyWith(
-      placeholderText: (_) => PlatformExtension.isDesktopOrWeb
-          ? AppFlowyEditorL10n.current.slashPlaceHolder
-          : ' ',
+/// 构建标准块构建器，每次调用返回新实例
+///
+/// [configuration] 为文本块（段落、待办、列表、引用、标题）的基础配置：
+/// 宿主统一块间距时传入，各块在其上叠加自己的占位文本。
+Map<String, BlockComponentBuilder> buildStandardBlockComponentBuilderMap({
+  BlockComponentConfiguration configuration =
+      standardBlockComponentConfiguration,
+}) {
+  return {
+    PageBlockKeys.type: PageBlockComponentBuilder(),
+    ParagraphBlockKeys.type: ParagraphBlockComponentBuilder(
+      configuration: configuration.copyWith(
+        placeholderText: (_) => PlatformExtension.isDesktopOrWeb
+            ? AppFlowyEditorL10n.current.slashPlaceHolder
+            : ' ',
+      ),
     ),
-  ),
-  TodoListBlockKeys.type: TodoListBlockComponentBuilder(
-    configuration: standardBlockComponentConfiguration.copyWith(
-      placeholderText: (_) => AppFlowyEditorL10n.current.toDoPlaceholder,
+    TodoListBlockKeys.type: TodoListBlockComponentBuilder(
+      configuration: configuration.copyWith(
+        placeholderText: (_) => AppFlowyEditorL10n.current.toDoPlaceholder,
+      ),
+      toggleChildrenTriggers: [
+        LogicalKeyboardKey.shift,
+        LogicalKeyboardKey.shiftLeft,
+        LogicalKeyboardKey.shiftRight,
+      ],
     ),
-    toggleChildrenTriggers: [
-      LogicalKeyboardKey.shift,
-      LogicalKeyboardKey.shiftLeft,
-      LogicalKeyboardKey.shiftRight,
-    ],
-  ),
-  BulletedListBlockKeys.type: BulletedListBlockComponentBuilder(
-    configuration: standardBlockComponentConfiguration.copyWith(
-      placeholderText: (_) => AppFlowyEditorL10n.current.listItemPlaceholder,
+    BulletedListBlockKeys.type: BulletedListBlockComponentBuilder(
+      configuration: configuration.copyWith(
+        placeholderText: (_) => AppFlowyEditorL10n.current.listItemPlaceholder,
+      ),
     ),
-  ),
-  NumberedListBlockKeys.type: NumberedListBlockComponentBuilder(
-    configuration: standardBlockComponentConfiguration.copyWith(
-      placeholderText: (_) => AppFlowyEditorL10n.current.listItemPlaceholder,
+    NumberedListBlockKeys.type: NumberedListBlockComponentBuilder(
+      configuration: configuration.copyWith(
+        placeholderText: (_) => AppFlowyEditorL10n.current.listItemPlaceholder,
+      ),
     ),
-  ),
-  QuoteBlockKeys.type: QuoteBlockComponentBuilder(
-    configuration: standardBlockComponentConfiguration.copyWith(
-      placeholderText: (_) => AppFlowyEditorL10n.current.quote,
+    QuoteBlockKeys.type: QuoteBlockComponentBuilder(
+      configuration: configuration.copyWith(
+        placeholderText: (_) => AppFlowyEditorL10n.current.quote,
+      ),
     ),
-  ),
-  HeadingBlockKeys.type: HeadingBlockComponentBuilder(
-    configuration: standardBlockComponentConfiguration.copyWith(
-      // 根据标题级别获取对应的本地化占位文本
-      placeholderText: (node) {
-        final level = node.attributes[HeadingBlockKeys.level] as int? ?? 1;
-        switch (level) {
-          case 1:
-            return AppFlowyEditorL10n.current.heading1;
-          case 2:
-            return AppFlowyEditorL10n.current.heading2;
-          case 3:
-            return AppFlowyEditorL10n.current.heading3;
-          default:
-            return AppFlowyEditorL10n.current.heading1;
-        }
-      },
+    HeadingBlockKeys.type: HeadingBlockComponentBuilder(
+      configuration: configuration.copyWith(
+        // 根据标题级别获取对应的本地化占位文本
+        placeholderText: (node) {
+          final level = node.attributes[HeadingBlockKeys.level] as int? ?? 1;
+          switch (level) {
+            case 1:
+              return AppFlowyEditorL10n.current.heading1;
+            case 2:
+              return AppFlowyEditorL10n.current.heading2;
+            case 3:
+              return AppFlowyEditorL10n.current.heading3;
+            default:
+              return AppFlowyEditorL10n.current.heading1;
+          }
+        },
+      ),
     ),
-  ),
-  ImageBlockKeys.type: ImageBlockComponentBuilder(),
-  DividerBlockKeys.type: DividerBlockComponentBuilder(
-    configuration: standardBlockComponentConfiguration.copyWith(
-      padding: (node) => const EdgeInsets.symmetric(vertical: 8.0),
+    ImageBlockKeys.type: ImageBlockComponentBuilder(),
+    DividerBlockKeys.type: DividerBlockComponentBuilder(
+      configuration: configuration.copyWith(
+        padding: (node) => const EdgeInsets.symmetric(vertical: 8.0),
+      ),
     ),
-  ),
-  TableBlockKeys.type: TableBlockComponentBuilder(),
-  TableCellBlockKeys.type: TableCellBlockComponentBuilder(),
-};
+    TableBlockKeys.type: TableBlockComponentBuilder(),
+    TableCellBlockKeys.type: TableCellBlockComponentBuilder(),
+  };
+}
+
+final Map<String, BlockComponentBuilder> standardBlockComponentBuilderMap =
+    buildStandardBlockComponentBuilderMap();
 
 final List<CharacterShortcutEvent> standardCharacterShortcutEvents = [
   // '\n'

@@ -89,6 +89,21 @@ class _DesktopScrollServiceState extends State<DesktopScrollService>
   }
 
   @override
+  Future<bool> revealNodes(
+    List<Node> nodes, {
+    double? alignment,
+    bool preferEnd = false,
+    Duration? duration,
+  }) {
+    return editorScrollController.revealNodes(
+      nodes,
+      alignment: alignment,
+      preferEnd: preferEnd,
+      duration: duration,
+    );
+  }
+
+  @override
   void disable() {
     AppFlowyEditorLog.scroll.debug('disable scroll service');
   }

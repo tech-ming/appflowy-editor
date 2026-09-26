@@ -137,24 +137,15 @@ mixin NonEditableBlockSelectionMixin<T extends StatefulWidget>
   }
 
   /// 获取选区范围内的矩形列表
+  ///
+  /// 非文本块不属于文字选区（复制、删除、剪切都只作用于文字），
+  /// 选区跨过时不画高亮，也不参与选区手柄与浮动工具栏的定位
   @override
   List<Rect> getRectsInSelection(
     Selection selection, {
     bool shiftWithBaseOffset = false,
   }) {
-    final contentBox = _contentRenderBox;
-    final parentBox = _renderBox;
-    if (contentBox == null) {
-      return [];
-    }
-
-    if (shiftWithBaseOffset && parentBox != null) {
-      final offset =
-          contentBox.localToGlobal(Offset.zero, ancestor: parentBox);
-      return [offset & contentBox.size];
-    }
-
-    return [Offset.zero & contentBox.size];
+    return const [];
   }
 
   /// 获取指定范围的选区

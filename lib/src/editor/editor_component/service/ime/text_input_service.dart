@@ -50,4 +50,7 @@ abstract class TextInputService {
 
   /// Closes the editing state of the text currently being edited.
   void close();
+
+  /// 把编辑器的真实内容回写给输入法（编辑器是唯一数据源），与输入法一致时不做事
+  void syncEditingValue(TextEditingValue textEditingValue) {}
 }

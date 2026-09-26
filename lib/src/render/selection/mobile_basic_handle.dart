@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/editor/editor_component/service/selection/mobile_selection_service.dart';
+import 'package:appflowy_editor/src/editor/util/editor_haptics.dart';
 import 'package:appflowy_editor/src/editor/util/platform_extension.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 GlobalKey _leftHandleKey = GlobalKey();
@@ -355,7 +355,7 @@ class _AndroidDragHandle extends _IDragHandle {
           handleType.dragMode,
         );
         if (this.selection != selection) {
-          HapticFeedback.selectionClick();
+          EditorHaptics.selection();
         }
         this.selection = selection;
         onDragging?.call(true);

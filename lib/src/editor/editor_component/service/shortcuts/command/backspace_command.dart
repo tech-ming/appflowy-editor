@@ -67,10 +67,17 @@ CommandShortcutEventHandler _backspaceInCollapsedSelection = (editorState) {
       });
 
       if (prev != null && prev.delta != null && tableParent == prevTableParent) {
-        // 移到上一个文本块的末尾
-        transaction.afterSelection = Selection.collapsed(
-          Position(path: prev.path, offset: prev.delta!.length),
-        );
+        if (prev.delta!.isEmpty && prev.children.isEmpty && prev.next == node) {
+          // 紧挨着的上一行是空行：删掉空行，块上移，光标留在块左侧（同 ProseMirror joinBackward）
+          transaction
+            ..deleteNode(prev)
+            ..afterSelection = Selection.collapsed(Position(path: prev.path));
+        } else {
+          // 上一行有内容：移到它的末尾
+          transaction.afterSelection = Selection.collapsed(
+            Position(path: prev.path, offset: prev.delta!.length),
+          );
+        }
       } else {
         // 没有上一个文本块，尝试移到上一个非文本块的右侧
         final prevAny = node.previousNodeWhere((element) {
@@ -248,24 +255,14 @@ CommandShortcutEventHandler _backspaceInBlockSelection = (editorState) {
   return KeyEventResult.handled;
 };
 
+/// 全选后删除：与普通文字选区一致，只删文字、保留非文本块
 CommandShortcutEventHandler _backspaceInSelectAll = (editorState) {
   final selection = editorState.selection;
   if (selection == null) {
     return KeyEventResult.ignored;
   }
 
-  final transaction = editorState.transaction;
-  final nodes = editorState.getNodesInSelection(selection);
-  transaction.deleteNodes(nodes);
-
-  // Insert a new paragraph node to avoid locking the editor
-  transaction.insertNode(
-    editorState.document.root.children.first.path,
-    paragraphNode(),
-  );
-  transaction.afterSelection = Selection.collapsed(Position(path: [0]));
-
-  editorState.apply(transaction);
+  editorState.deleteSelection(selection);
 
   return KeyEventResult.handled;
 };

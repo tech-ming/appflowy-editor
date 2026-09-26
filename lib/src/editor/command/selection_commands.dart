@@ -62,11 +62,22 @@ extension SelectionTransform on EditorState {
     // Normalize the selection so that it is never reversed or extended.
     selection = selection.normalized;
 
-    // Start a new transaction.
-    final transaction = this.transaction;
-
     // Get the nodes that are fully or partially selected.
     final nodes = getNodesInSelection(selection);
+
+    // 文字选区只作用于文本：非文本块（图片、视频等自定义块）原样保留。
+    // 表格单元格有自己的删除规则，仍走下方原逻辑
+    final involvesTable = nodes.any(
+      (node) =>
+          ignoreNodeTypes.contains(node.type) ||
+          ignoreNodeTypes.contains(node.parent?.type),
+    );
+    if (!involvesTable) {
+      return _deleteTextInSelection(selection, nodes);
+    }
+
+    // Start a new transaction.
+    final transaction = this.transaction;
 
     // If only one node is selected, then we can just delete the selected text
     // or node.
@@ -185,6 +196,85 @@ extension SelectionTransform on EditorState {
         .debug(transaction.operations.map((e) => e.toString()).toString());
 
     // Apply the transaction.
+    await apply(transaction);
+
+    return true;
+  }
+
+  /// 删除选区内的文字，非文本块不属于文字选区，一律保留
+  ///
+  /// 首尾文本块之间没有非文本块时合并成一行（与普通跨行删除一致）；
+  /// 隔着非文本块时各自删掉选中部分，分行保留。
+  Future<bool> _deleteTextInSelection(
+    Selection selection,
+    List<Node> nodes,
+  ) async {
+    final textIndexes = [
+      for (var i = 0; i < nodes.length; i++)
+        if (nodes[i].delta != null) i,
+    ];
+    // 只选中了非文本块：没有可删的文字，收成光标落在块后，
+    // 后续输入 / 粘贴按「块旁输入」处理（调用方依赖删除后选区已折叠）
+    if (textIndexes.isEmpty) {
+      this.selection = selection.collapse(atStart: false);
+
+      return false;
+    }
+
+    final firstIndex = textIndexes.first;
+    final lastIndex = textIndexes.last;
+    final first = nodes[firstIndex];
+    final last = nodes[lastIndex];
+    // 选区端点落在非文本块上时，相邻文本块按整行计
+    final leftOffset = firstIndex == 0 ? selection.startIndex : 0;
+    final rightOffset =
+        lastIndex == nodes.length - 1 ? selection.endIndex : last.delta!.length;
+
+    final transaction = this.transaction;
+    void deleteRange(Node node, int start, int end) {
+      if (end > start) {
+        transaction.deleteText(node, start, end - start);
+      }
+    }
+
+    if (firstIndex == lastIndex) {
+      deleteRange(first, leftOffset, rightOffset);
+    } else {
+      final between = nodes.sublist(firstIndex + 1, lastIndex);
+      for (final node in between) {
+        if (node.delta != null) {
+          transaction.deleteNode(node);
+        }
+      }
+
+      if (between.every((node) => node.delta != null)) {
+        transaction.mergeText(
+          first,
+          last,
+          leftOffset: leftOffset,
+          rightOffset: rightOffset,
+        );
+        // 末行的子节点并入首行
+        if (last.children.isNotEmpty) {
+          transaction.insertNodes(
+            indentableBlockTypes.contains(first.type)
+                ? first.path + [0]
+                : first.path.next,
+            last.children,
+            deepCopy: true,
+          );
+        }
+        transaction.deleteNode(last);
+      } else {
+        deleteRange(first, leftOffset, first.delta!.length);
+        deleteRange(last, 0, rightOffset);
+      }
+    }
+
+    // 首个文本块之前只有被保留的非文本块，路径不变
+    transaction.afterSelection = Selection.collapsed(
+      Position(path: first.path, offset: leftOffset),
+    );
     await apply(transaction);
 
     return true;

@@ -57,6 +57,7 @@ class PageBlockComponent extends BlockComponentStatelessWidget {
 
     if (scrollController == null || scrollController.shrinkWrap) {
       return SingleChildScrollView(
+        physics: scrollController?.physics,
         child: Builder(
           builder: (context) {
             final scroller = Scrollable.maybeOf(context);
@@ -97,6 +98,7 @@ class PageBlockComponent extends BlockComponentStatelessWidget {
 
       return ScrollablePositionedList.builder(
         shrinkWrap: scrollController.shrinkWrap,
+        physics: scrollController.physics,
         scrollDirection: Axis.vertical,
         itemCount: items.length + extentCount,
         itemBuilder: (context, index) {

@@ -260,6 +260,21 @@ class KeyboardServiceWidgetState extends State<KeyboardServiceWidget>
     }
   }
 
+  /// 输入处理完后把编辑器的真实内容回写给输入法
+  ///
+  /// 编辑器忽略或改写了输入（文首退格、快捷符号转换、非文本块旁输入）时，输入法
+  /// 缓冲区会与文档脱节，开头的占位符也可能已被删掉，之后的行首退格不再上报。
+  void _syncTextInputValue() {
+    final selection = editorState.selection;
+    if (selection == null) {
+      return;
+    }
+    final value = _getCurrentTextEditingValue(selection);
+    if (value != null) {
+      textInputService.syncEditingValue(value);
+    }
+  }
+
   // This function is used to get the current text editing value of the editor
   // based on the given selection.
   TextEditingValue? _getCurrentTextEditingValue(Selection selection) {
@@ -283,21 +298,27 @@ class KeyboardServiceWidgetState extends State<KeyboardServiceWidget>
     final composingTextRange =
         textInputService.composingTextRange ?? TextRange.empty;
     if (editableNodes.isNotEmpty) {
+      final nodes = editableNodes.toList();
+      final texts = [for (final node in nodes) node.delta!.toPlainText()];
       // Get the text by concatenating all the editable nodes in the selection.
-      var text = editableNodes.fold<String>(
-        '',
-        (sum, editableNode) => '$sum${editableNode.delta!.toPlainText()}\n',
-      );
+      final text = texts.join('\n');
 
-      // Remove the last '\n'.
-      text = text.substring(0, text.length - 1);
+      // 跨行选区的偏移换算到拼接后的文字里（原先直接用各自行内偏移，与文字对不上，
+      // 输入法按错位的选区回传后会被误判为删改）；首尾是非文本块时取整行边界
+      final normalized = selection.normalized;
+      final start = nodes.first.path.equals(normalized.start.path)
+          ? normalized.start.offset
+          : 0;
+      var end = nodes.last.path.equals(normalized.end.path)
+          ? normalized.end.offset
+          : texts.last.length;
+      for (var i = 0; i < texts.length - 1; i++) {
+        end += texts[i].length + 1;
+      }
 
       return TextEditingValue(
         text: text,
-        selection: TextSelection(
-          baseOffset: selection.startIndex,
-          extentOffset: selection.endIndex,
-        ),
+        selection: TextSelection(baseOffset: start, extentOffset: end),
         composing: composingTextRange,
       );
     }
@@ -397,6 +418,7 @@ class KeyboardServiceWidgetState extends State<KeyboardServiceWidget>
           editorState,
           widget.characterShortcutEvents,
         );
+        _syncTextInputValue();
 
         return true;
       },
@@ -419,6 +441,7 @@ class KeyboardServiceWidgetState extends State<KeyboardServiceWidget>
           deletion,
           editorState,
         );
+        _syncTextInputValue();
 
         return true;
       },
@@ -443,6 +466,7 @@ class KeyboardServiceWidgetState extends State<KeyboardServiceWidget>
           editorState,
           widget.characterShortcutEvents,
         );
+        _syncTextInputValue();
 
         return true;
       },

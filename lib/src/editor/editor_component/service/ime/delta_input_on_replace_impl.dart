@@ -18,6 +18,18 @@ Future<void> onReplace(
     return;
   }
 
+  // 非文本块没有可替换的文字，按插入处理（落到块旁的新段落）
+  if (selection.isCollapsed &&
+      editorState.getNodeAtPath(selection.start.path)?.delta == null) {
+    await onInsert(
+      replacement.toInsertion(),
+      editorState,
+      characterShortcutEvents,
+    );
+
+    return;
+  }
+
   if (selection.isSingle) {
     final execution = await executeCharacterShortcutEvent(
       editorState,

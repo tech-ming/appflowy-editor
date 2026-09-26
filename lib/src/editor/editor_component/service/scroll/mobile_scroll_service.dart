@@ -71,9 +71,35 @@ class _MobileScrollServiceState extends State<MobileScrollService>
     );
   }
 
+  /// 把第 [index] 个顶层块（文档下标，不含 header）滚入可见区
+  ///
+  /// 不走 itemScrollController.jumpTo：那会把列表重新锚定到该块，
+  /// 详见 [EditorScrollController.revealNodes]。
   @override
   void jumpTo(int index) {
-    editorScrollController.itemScrollController.jumpTo(index: index);
+    final children = editorState.document.root.children;
+    if (index < 0 || index >= children.length) {
+      return;
+    }
+    editorScrollController.revealNode(
+      children.elementAt(index),
+      duration: Duration.zero,
+    );
+  }
+
+  @override
+  Future<bool> revealNodes(
+    List<Node> nodes, {
+    double? alignment,
+    bool preferEnd = false,
+    Duration? duration,
+  }) {
+    return editorScrollController.revealNodes(
+      nodes,
+      alignment: alignment,
+      preferEnd: preferEnd,
+      duration: duration,
+    );
   }
 
   @override

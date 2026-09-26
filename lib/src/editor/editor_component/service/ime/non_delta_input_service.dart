@@ -73,6 +73,11 @@ class NonDeltaTextInputService extends TextInputService with TextInputClient {
     final formattedValue = textEditingValue.format();
     if (!formattedValue.isValid() ||
         currentTextEditingValue == formattedValue) {
+      // 值没变就不必重设 editing state，但连接可能只是被**隐藏**了：
+      // 系统返回手势收起输入法既不 close 连接、也不清这份缓存值。于是用户原地
+      // 点回同一个位置时，选区不变、editing value 也不变，直接走到这里早退，
+      // 键盘再也弹不出来。补一次 show 把它拉回来。
+      _textInputConnection?.show();
       return;
     }
 
@@ -95,6 +100,24 @@ class NonDeltaTextInputService extends TextInputService with TextInputClient {
     AppFlowyEditorLog.input.debug(
       'attach text editing value: $textEditingValue',
     );
+  }
+
+  @override
+  void syncEditingValue(TextEditingValue textEditingValue) {
+    final formattedValue = textEditingValue.format();
+    final current = currentTextEditingValue;
+    // 只比文字与选区：组合区由输入法主导、两侧记法不完全一致，
+    // 为它回写会在中文输入过程中反复打断组合
+    if (_textInputConnection?.attached != true ||
+        !formattedValue.isValid() ||
+        (current != null &&
+            current.text == formattedValue.text &&
+            current.selection == formattedValue.selection)) {
+      return;
+    }
+
+    _textInputConnection!.setEditingState(formattedValue);
+    currentTextEditingValue = formattedValue;
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/editor/editor_component/service/scroll/auto_scroller.dart';
 import 'package:flutter/material.dart';
 
@@ -39,6 +40,16 @@ abstract class AppFlowyScrollService implements AutoScrollerService {
   void jumpTo(
     int index,
   );
+
+  /// 以最小滚动量把相邻节点整体滚入可见区（未构建时先推进布局），返回是否成功
+  ///
+  /// 落位规则见 [EditorScrollController.revealNodes]。
+  Future<bool> revealNodes(
+    List<Node> nodes, {
+    double? alignment,
+    bool preferEnd = false,
+    Duration? duration,
+  });
 
   void jumpToTop();
 

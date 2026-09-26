@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/editor/editor_component/service/selection/mobile_magnifier.dart';
 import 'package:appflowy_editor/src/editor/editor_component/service/selection/shared.dart';
+import 'package:appflowy_editor/src/editor/util/editor_haptics.dart';
 import 'package:appflowy_editor/src/editor/util/platform_extension.dart';
 import 'package:appflowy_editor/src/render/selection/mobile_basic_handle.dart';
 import 'package:appflowy_editor/src/render/selection/mobile_collapsed_handle.dart';
 import 'package:appflowy_editor/src/render/selection/mobile_selection_handle.dart';
 import 'package:appflowy_editor/src/service/selection/mobile_selection_gesture.dart';
 import 'package:flutter/material.dart' hide Overlay, OverlayEntry;
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 /// only used in mobile
@@ -383,8 +383,11 @@ class _MobileSelectionServiceWidgetState
       customSelectionType: SelectionType.inline,
       extraInfo: {
         selectionDragModeKey: dragMode,
+        // 拖动光标 / 选区手柄期间不与输入法同步，松手（onPanEnd）再接回：
+        // 跨行拖动时推给输入法的文字逐帧变化，输入法回传的旧状态会被
+        // 当成用户输入，算出删除把选中内容（含自定义块）删掉
         selectionExtraInfoDoNotAttachTextService:
-            dragMode == MobileSelectionDragMode.cursor,
+            dragMode != MobileSelectionDragMode.none,
       },
     );
   }
@@ -794,7 +797,7 @@ class _MobileSelectionServiceWidgetState
     }
 
     if (editorState.editorStyle.enableHapticFeedbackOnAndroid) {
-      HapticFeedback.mediumImpact();
+      EditorHaptics.impact();
     }
 
     dragMode = MobileSelectionDragMode.cursor;
@@ -806,6 +809,8 @@ class _MobileSelectionServiceWidgetState
       reason: SelectionUpdateReason.uiEvent,
       extraInfo: {
         selectionExtraInfoDisableFloatingToolbar: true,
+        // 长按拖选期间不与输入法同步，松手（_onLongPressEndAndroid）再接回
+        selectionExtraInfoDoNotAttachTextService: true,
       },
     );
   }
@@ -854,6 +859,7 @@ class _MobileSelectionServiceWidgetState
         reason: SelectionUpdateReason.uiEvent,
         extraInfo: {
           selectionExtraInfoDisableFloatingToolbar: true,
+          selectionExtraInfoDoNotAttachTextService: true,
         },
       );
     }
@@ -902,8 +908,10 @@ class _MobileSelectionServiceWidgetState
 
     final selection = Selection.collapsed(position);
 
-    if (editorState.editorStyle.enableHapticFeedbackOnAndroid) {
-      HapticFeedback.lightImpact();
+    // 只在光标真的换了位置时轻震，逐帧震动在转子马达上是持续的嗡嗡声
+    if (editorState.editorStyle.enableHapticFeedbackOnAndroid &&
+        editorState.selection != selection) {
+      EditorHaptics.selection();
     }
     updateSelection(selection);
   }
